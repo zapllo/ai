@@ -237,14 +237,16 @@ export async function initiateCall(
     throw new Error(err);
   }
 
-  const { callSid } = (await resp.json()) as { callSid: string };
+  const { call_id } = await resp.json();
+  call.elevenLabsCallSid = call_id;
+
 
   call.status = "initiated";
-  call.elevenLabsCallSid = callSid;
+
   await call.save();
 
   agent.lastCalledAt = new Date();
   await agent.save();
 
-  return { id: call._id, status: "initiated", callSid };
+  return { id: call._id, status: "initiated", call_id };
 }
