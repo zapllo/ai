@@ -27,7 +27,8 @@ export async function GET(request: NextRequest) {
       last_called_at: agent.lastCalledAt,
       conversation_config: {
         first_message: agent.firstMessage,
-        system_prompt: agent.systemPrompt
+        system_prompt: agent.systemPrompt,
+        enable_summary: true,
       }
     }));
 

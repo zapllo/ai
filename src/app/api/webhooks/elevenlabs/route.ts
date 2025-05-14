@@ -43,6 +43,7 @@ export async function POST(req: NextRequest) {
     transcript_summary,
     status,
   } = data;
+  console.log("Webhook payload:", JSON.stringify(data, null, 2));
 
   await connectDB();
   const call = await Call.findOne({ elevenLabsCallSid: call_sid });

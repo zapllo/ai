@@ -104,12 +104,12 @@ type Call = {
   agentId: string;
   agentName?: string;
   transcription?: string;
-  summary?:string;
+  summary?: string;
   notes?: string;
   cost?: number;
   callType?: string;
   createdAt: string;
-  elevenLabsCallSid?:string;
+  elevenLabsCallSid?: string;
 };
 
 export default function CallHistoryPage() {
@@ -704,7 +704,7 @@ export default function CallHistoryPage() {
                 <TabsContent value="recording">
                   {selectedCall.elevenLabsCallSid ? (
                     <audio controls className="w-full mt-2">
-                      <source src={`https://api.elevenlabs.io/v1/conversations/${selectedCall.elevenLabsCallSid}/audio`} type="audio/mpeg" />
+                      <source src={`/api/audio/${selectedCall.elevenLabsCallSid}`} type="audio/mpeg" />
                       Your browser does not support the audio element.
                     </audio>
                   ) : (
