@@ -8,16 +8,22 @@ const SECRET = process.env.ELEVENLABS_WEBHOOK_SECRET!;
 /** Return true if signature header matches payload */
 function isValid(raw: Buffer, header: string | null) {
   if (!header) return false;
-  const [t, v0] = header.split(",");
-  const timestamp = t?.split("=")[1];
-  const hash = v0?.split("=")[1];
+
+  const elements = header.split(",").reduce((acc: any, part) => {
+    const [k, v] = part.split("=");
+    acc[k] = v;
+    return acc;
+  }, {});
+
+  const timestamp = elements["t"];
+  const receivedHash = elements["v0"];
 
   const hmac = crypto
     .createHmac("sha256", SECRET)
     .update(`${timestamp}.${raw}`)
     .digest("hex");
 
-  return `v0=${hmac}` === header;
+  return receivedHash && crypto.timingSafeEqual(Buffer.from(receivedHash), Buffer.from(hmac));
 }
 
 export async function POST(req: NextRequest) {
