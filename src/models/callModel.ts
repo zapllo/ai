@@ -1,0 +1,80 @@
+import mongoose, { Document, Schema } from "mongoose";
+
+export interface ICall extends Document {
+  userId: mongoose.Types.ObjectId;
+  agentId: mongoose.Types.ObjectId;
+  contactId?: mongoose.Types.ObjectId;
+
+  phoneNumber: string;
+  direction: "inbound" | "outbound";
+
+  status:
+    | "queued"
+    | "initiated"
+    | "in-progress"
+    | "completed"
+    | "failed"
+    | "no-answer";
+
+  elevenLabsCallSid?: string;   // <-- the field we’ll match on
+  twilioCallSid?: string;       // optional if you want both
+
+  /* meta */
+  notes?: string;
+  recordingUrl?: string;
+  transcription?: string;
+  contactName?: string;
+  customMessage?: string;
+
+  scheduledFor?: Date;
+  startTime?: Date;
+  endTime?: Date;
+  duration?: number;
+  cost: number;                 // cents / paise
+}
+
+const CallSchema = new Schema<ICall>(
+  {
+    userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    agentId: { type: Schema.Types.ObjectId, ref: "Agent", required: true },
+    contactId: { type: Schema.Types.ObjectId, ref: "Contact" },
+
+    phoneNumber: { type: String, required: true },
+    direction: {
+      type: String,
+      enum: ["inbound", "outbound"],
+      required: true,
+    },
+    status: {
+      type: String,
+      enum: [
+        "queued",
+        "initiated",
+        "in-progress",
+        "completed",
+        "failed",
+        "no-answer",
+      ],
+      default: "queued",
+    },
+
+    elevenLabsCallSid: String,
+    twilioCallSid: String,
+
+    notes: String,
+    recordingUrl: String,
+    transcription: String,
+    contactName: String,
+    customMessage: String,
+
+    scheduledFor: Date,
+    startTime: Date,
+    endTime: Date,
+    duration: Number,
+    cost: { type: Number, default: 0 },
+  },
+  { timestamps: true }
+);
+
+export default mongoose.models.Call ??
+  mongoose.model<ICall>("Call", CallSchema);
