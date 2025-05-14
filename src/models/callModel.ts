@@ -9,16 +9,16 @@ export interface ICall extends Document {
   direction: "inbound" | "outbound";
 
   status:
-    | "queued"
-    | "initiated"
-    | "in-progress"
-    | "completed"
-    | "failed"
-    | "no-answer";
+  | "queued"
+  | "initiated"
+  | "in-progress"
+  | "completed"
+  | "failed"
+  | "no-answer";
 
   elevenLabsCallSid?: string;   // <-- the field we’ll match on
   twilioCallSid?: string;       // optional if you want both
-
+  summary?: string;
   /* meta */
   notes?: string;
   recordingUrl?: string;
@@ -57,7 +57,7 @@ const CallSchema = new Schema<ICall>(
       ],
       default: "queued",
     },
-
+    summary: { type: String, default: "" },
     elevenLabsCallSid: String,
     twilioCallSid: String,
 

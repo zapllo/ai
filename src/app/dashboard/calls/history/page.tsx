@@ -79,6 +79,8 @@ import {
   PhoneCall,
   PhoneOff,
   ArrowDownToLine,
+  Bot,
+  User,
 } from "lucide-react";
 import {
   Popover,
@@ -87,6 +89,8 @@ import {
 } from "@/components/ui/popover";
 import { DateRange } from "react-day-picker";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { string } from "zod";
 
 // Call type definition for history
 type Call = {
@@ -100,10 +104,12 @@ type Call = {
   agentId: string;
   agentName?: string;
   transcription?: string;
+  summary?:string;
   notes?: string;
   cost?: number;
   callType?: string;
   createdAt: string;
+  elevenLabsCallSid?:string;
 };
 
 export default function CallHistoryPage() {
@@ -221,7 +227,7 @@ export default function CallHistoryPage() {
           <Badge variant="outline" className="bg-success/10 text-success border-success/20">
             <CheckCircle className="h-3 w-3 mr-1" /> Completed
           </Badge>
-);
+        );
       case "failed":
         return (
           <Badge variant="outline" className="bg-destructive/10 text-destructive border-destructive/20">
@@ -567,7 +573,7 @@ export default function CallHistoryPage() {
 
       {/* Call Details Dialog */}
       <Dialog open={!!selectedCall} onOpenChange={(open) => !open && setSelectedCall(null)}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="sm:max-w-[600px] h-fit max-h-screen overflow-y-scroll scrollbar-hidden">
           <DialogHeader>
             <DialogTitle>Call Details</DialogTitle>
             <DialogDescription>
@@ -632,10 +638,7 @@ export default function CallHistoryPage() {
                   </p>
                 </div>
 
-                <div className="space-y-1">
-                  <p className="text-xs text-muted-foreground">Cost</p>
-                  <p className="text-sm">₹{selectedCall.cost?.toFixed(2) || "0.00"}</p>
-                </div>
+
               </div>
 
               {selectedCall.notes && (
@@ -647,16 +650,68 @@ export default function CallHistoryPage() {
                 </div>
               )}
 
-              {selectedCall.transcription && (
-                <div className="space-y-1 pt-2">
-                  <p className="text-xs text-muted-foreground">Transcription</p>
-                  <ScrollArea className="h-40">
-                    <div className="p-3 bg-muted rounded-md text-sm">
-                      {selectedCall.transcription}
+              <Tabs defaultValue="transcript" className="space-y-4">
+                <TabsList className="w-full grid grid-cols-3">
+                  <TabsTrigger value="transcript">Transcript</TabsTrigger>
+                  <TabsTrigger value="summary">Summary</TabsTrigger>
+                  <TabsTrigger value="recording">Recording</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="transcript">
+                  {selectedCall.transcription ? (
+                    <ScrollArea className="h-[240px]">
+                      <div className="p-3 bg-muted/30 rounded-md space-y-4">
+                        {selectedCall.transcription.split(/user:|agent:/).filter(Boolean).map((segment, index) => {
+                          const speakerType = index % 2 === 0 ? "user" : "agent";
+                          return (
+                            <div key={index} className={cn("flex gap-3", speakerType === "user" ? "justify-end" : "justify-start")}>
+                              {speakerType === "agent" && (
+                                <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                                  <Bot className="h-4 w-4 text-primary" />
+                                </div>
+                              )}
+                              <div className={cn(
+                                "rounded-2xl px-4 py-2 text-sm max-w-[80%]",
+                                speakerType === "user" ? "bg-secondary text-secondary-foreground rounded-tr-none" : "bg-muted text-muted-foreground rounded-tl-none"
+                              )}>
+                                <p>{segment.trim()}</p>
+                              </div>
+                              {speakerType === "user" && (
+                                <div className="h-8 w-8 rounded-full bg-secondary/10 flex items-center justify-center">
+                                  <User className="h-4 w-4 text-secondary" />
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </ScrollArea>
+                  ) : (
+                    <p className="text-muted-foreground text-sm">Transcript not available.</p>
+                  )}
+                </TabsContent>
+
+                <TabsContent value="summary">
+                  {selectedCall.summary ? (
+                    <div className="p-3 bg-muted rounded-md text-sm whitespace-pre-wrap">
+                      {selectedCall.summary}
                     </div>
-                  </ScrollArea>
-                </div>
-              )}
+                  ) : (
+                    <p className="text-muted-foreground text-sm">Summary not available.</p>
+                  )}
+                </TabsContent>
+
+                <TabsContent value="recording">
+                  {selectedCall.elevenLabsCallSid ? (
+                    <audio controls className="w-full mt-2">
+                      <source src={`https://api.elevenlabs.io/v1/conversations/${selectedCall.elevenLabsCallSid}/audio`} type="audio/mpeg" />
+                      Your browser does not support the audio element.
+                    </audio>
+                  ) : (
+                    <p className="text-muted-foreground text-sm">Recording not available.</p>
+                  )}
+                </TabsContent>
+              </Tabs>
 
               <DialogFooter className="flex gap-3">
                 <Button
