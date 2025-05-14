@@ -1,6 +1,6 @@
 "use client";
 export const dynamic = 'force-dynamic';   // skip any static prerender
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -39,11 +39,11 @@ const callSchema = z.object({
   customMessage: z.string().optional(),
 });
 
-export default function NewCallPage() {
+// Component that uses useSearchParams (needs to be wrapped in Suspense)
+function NewCallPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const preselectedAgentId = searchParams.get("agent");
-
   const [agents, setAgents] = useState<any[]>([]);
   const [contacts, setContacts] = useState<any[]>([]);
   const [loadingAgents, setLoadingAgents] = useState(true);
@@ -264,7 +264,7 @@ export default function NewCallPage() {
                 </CardHeader>
                 <CardContent>
                   <p className="mb-4">{uploadResult.message}</p>
-              <div className="bg-muted p-4 rounded-md mb-4">
+                  <div className="bg-muted p-4 rounded-md mb-4">
                     <div className="text-sm mb-2">
                       <span className="font-medium">Processed:</span> {uploadResult.results.length} contacts
                     </div>
@@ -657,5 +657,50 @@ export default function NewCallPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+// Main page component that uses Suspense to handle the useSearchParams hook
+export default function NewCallPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen text-foreground flex">
+        <DashboardSidebar />
+        <main className="flex-1 h-fit max-h-screen overflow-y-auto bg-background">
+          <DashboardHeader />
+          <div className="container mx-auto px-4 sm:px-6 py-8">
+            <div className="max-w-4xl mx-auto">
+              <div className="space-y-6">
+                <Skeleton className="h-8 w-48" />
+                <Skeleton className="h-4 w-full max-w-md" />
+
+                <Card>
+                  <CardHeader>
+                    <Skeleton className="h-6 w-48" />
+                    <Skeleton className="h-4 w-64" />
+                  </CardHeader>
+                  <CardContent>
+                    <Skeleton className="h-10 w-full" />
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <Skeleton className="h-6 w-48" />
+                    <Skeleton className="h-4 w-64" />
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <Skeleton className="h-16 w-full" />
+                    <Skeleton className="h-24 w-full" />
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    }>
+      <NewCallPageContent />
+    </Suspense>
   );
 }
