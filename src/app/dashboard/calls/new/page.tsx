@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';   // skip any static prerender
+
 "use client";
 
 import { useState, useEffect } from "react";
