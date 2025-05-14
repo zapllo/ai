@@ -3,75 +3,75 @@ import connectDB from './db';
 import Agent from '@/models/agentModel';
 import callModel from '@/models/callModel';
 
-
 const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY!;
 const ELEVENLABS_PHONE_ID = process.env.ELEVENLABS_PHONE_ID!;
 
-export async function createAgent(data: any) {
+export async function createAgent(data: {
+  userId: string;
+  name: string;
+  description?: string;
+  voice_id: string;
+  first_message?: string;
+  system_prompt?: string;
+}) {
   try {
-    const firstMessage = data.first_message || data.firstMessage || data.conversation_config?.first_message || "";
-    const systemPrompt = data.system_prompt || data.systemPrompt || data.conversation_config?.system_prompt || "";
-    const voiceId = data.voice_id || data.voiceId || "";
+    const {
+      userId,
+      name,
+      description = '',
+      voice_id,
+      first_message = '',
+      system_prompt = '',
+    } = data;
 
-    const response = await fetch("https://api.elevenlabs.io/v1/convai/agents/create", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "xi-api-key": ELEVENLABS_API_KEY,
+    /* ───────── call ElevenLabs ───────── */
+    const res = await fetch(
+      'https://api.elevenlabs.io/v1/convai/agents/create',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'xi-api-key': ELEVENLABS_API_KEY!,
+        },
+        body: JSON.stringify({
+          name,
+          description,
+          voice_id,                    // <-- must be top-level
+          conversation_config: {
+            agent: {
+              first_message,
+              prompt: { prompt: system_prompt },
+            },
+            enable_summary: true,
+          },
+        }),
       },
-      body: JSON.stringify({
-        name: data.name,
-        voice_id: voiceId,
-        conversation_config: {
-          agent: {
-            first_message: firstMessage,
-            prompt: {
-              prompt: systemPrompt,
-            }
-          }
-        }
-      }),
+    );
 
-    });
-
-    console.log("ElevenLabs createAgent request:", {
-      name: data.name,
-      voice_id: voiceId,
-      conversation_config: {
-        first_message: firstMessage,
-        system_prompt: systemPrompt,
-      },
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("ElevenLabs response error:", {
-        status: response.status,
-        statusText: response.statusText,
-        body: errorText,
-      });
-      throw new Error(`ElevenLabs API error: ${errorText}`);
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`ElevenLabs API error: ${text}`);
     }
 
-    const agentData = await response.json();
+    const { agent_id } = await res.json();
 
+    /* ───────── save locally ───────── */
     await connectDB();
-    const agent = new Agent({
-      userId: data.userId,
-      name: data.name,
-      description: data.description || "",
-      agentId: agentData.agent_id,
-      voiceId: voiceId,
-      firstMessage: firstMessage,
-      systemPrompt: systemPrompt,
+    const agent = await Agent.create({
+      userId,
+      name,
+      description,
+      agentId: agent_id,
+      voiceId: voice_id,
+      firstMessage: first_message,
+      systemPrompt: system_prompt,
       usageMinutes: 0,
     });
 
-    await agent.save();
     return agent;
-  } catch (error) {
-    console.error("Error creating agent:", error);
-    throw error;
+  } catch (err) {
+    console.error('Error creating agent:', err);
+    throw err;
   }
 }
 
@@ -254,4 +254,33 @@ export async function initiateCall(
   await agent.save();
 
   return { id: call._id, status: "initiated", call_id };
+}
+
+
+/* NEW ──────────────────────────────────────────────────────────────── */
+export async function getConversation(callSid: string) {
+  // GET /v1/conversations/{conversation_id}
+  const res = await fetch(
+    `https://api.elevenlabs.io/v1/conversations/${callSid}`,
+    { headers: { "xi-api-key": ELEVENLABS_API_KEY } }
+  );
+
+  if (!res.ok) {
+    throw new Error(
+      `ElevenLabs conversation fetch failed – ${res.status} ${res.statusText}`
+    );
+  }
+  /* shape per docs: https://elevenlabs.io/docs/api-reference/conversations/get-conversation#response
+     {
+       conversation_id: "...",
+       agent_id: "...",
+       summary: "...",
+       messages: [...],
+       ...
+     }
+  */
+  return res.json() as Promise<{
+    summary?: string;
+    messages?: { role: "agent" | "user"; text: string }[];
+  }>;
 }

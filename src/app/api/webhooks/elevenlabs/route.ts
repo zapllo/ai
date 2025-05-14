@@ -40,6 +40,7 @@ export async function POST(req: NextRequest) {
   const {
     metadata: { call_sid, call_duration_secs = 0, cost = 0 },
     transcript,
+    conversation_id,
     transcript_summary,
     status,
   } = data;
@@ -57,6 +58,8 @@ export async function POST(req: NextRequest) {
     ?.map((seg: { role: string; message: string }) => `${seg.role}: ${seg.message}`)
     .join("\n");
   call.summary = transcript_summary || "";
+   call.conversationId = conversation_id;   //  👈  save it
+  call.hasAudio      = status === "done";  //  👈  audio is ready
   await call.save();
   return NextResponse.json({ ok: true });
 }

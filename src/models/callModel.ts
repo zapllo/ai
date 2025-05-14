@@ -25,7 +25,8 @@ export interface ICall extends Document {
   transcription?: string;
   contactName?: string;
   customMessage?: string;
-
+  conversationId?: string;   // ← NEW (ElevenLabs convai ID)
+  hasAudio?: boolean;        // ← cache “has_audio” flag
   scheduledFor?: Date;
   startTime?: Date;
   endTime?: Date;
@@ -63,6 +64,7 @@ const CallSchema = new Schema<ICall>(
 
     notes: String,
     recordingUrl: String,
+    conversationId: String,
     transcription: String,
     contactName: String,
     customMessage: String,

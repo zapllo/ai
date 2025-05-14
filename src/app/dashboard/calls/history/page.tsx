@@ -704,7 +704,9 @@ export default function CallHistoryPage() {
                 <TabsContent value="recording">
                   {selectedCall.elevenLabsCallSid ? (
                     <audio controls className="w-full mt-2">
-                      <source src={`/api/audio/${selectedCall.elevenLabsCallSid}`} type="audio/mpeg" />
+                      <source src={`/api/audio/${encodeURIComponent(
+                        selectedCall.elevenLabsConversationId,
+                      )}`} type="audio/mpeg" />
                       Your browser does not support the audio element.
                     </audio>
                   ) : (
