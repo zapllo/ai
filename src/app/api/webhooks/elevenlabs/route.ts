@@ -1,3 +1,4 @@
+// app/api/webhook/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import connectDB from "@/lib/db";
@@ -5,63 +6,94 @@ import Call from "@/models/callModel";
 
 const SECRET = process.env.ELEVENLABS_WEBHOOK_SECRET!;
 
-/** Return true if signature header matches payload */
-function isValid(raw: Buffer, header: string | null) {
+/** Verify ElevenLabs signature header */
+function isValidSignature(raw: Buffer, header: string | null) {
   if (!header) return false;
 
-  const elements = header.split(",").reduce((acc: any, part) => {
-    const [k, v] = part.split("=");
+  const parts = header.split(",").reduce<Record<string, string>>((acc, p) => {
+    const [k, v] = p.split("=");
     acc[k] = v;
     return acc;
   }, {});
 
-  const timestamp = elements["t"];
-  const receivedHash = elements["v0"];
+  const timestamp = parts["t"];
+  const received  = parts["v0"];
+  if (!timestamp || !received) return false;
 
-  const hmac = crypto
+  const expected = crypto
     .createHmac("sha256", SECRET)
     .update(`${timestamp}.${raw}`)
     .digest("hex");
 
-  return receivedHash && crypto.timingSafeEqual(Buffer.from(receivedHash), Buffer.from(hmac));
+  return crypto.timingSafeEqual(Buffer.from(received), Buffer.from(expected));
 }
 
 export async function POST(req: NextRequest) {
+  /** 1 ▸ read raw body & verify signature */
   const raw = Buffer.from(await req.arrayBuffer());
 
-  if (!isValid(raw, req.headers.get("elevenlabs-signature")))
-    return NextResponse.json({ ok: false }, { status: 401 });
+  if (!isValidSignature(raw, req.headers.get("elevenlabs-signature"))) {
+    return NextResponse.json({ ok: false, error: "Invalid signature" }, { status: 401 });
+  }
 
-  const { type, data } = JSON.parse(raw.toString());
+  /** 2 ▸ parse once */
+  const payload = JSON.parse(raw.toString());
 
-  if (type !== "post_call_transcription")
-    return NextResponse.json({ ok: true }); // ignore other events
+  /**
+   * ElevenLabs sends two slightly different shapes:
+   *   A) { type, data:{ …analysis:{transcript_summary}… } }
+   *   B) { status:'done', analysis:{transcript_summary}, … }   (no wrapper)
+   *
+   * event = the object that actually holds call details.
+   */
+  const event = payload.data ?? payload;
+  const eventType = payload.type ?? event.type ?? "post_call_transcription";
 
+  if (eventType !== "post_call_transcription") {
+    // ignore other webhook types (e.g., TTS status)
+    return NextResponse.json({ ok: true });
+  }
+
+  /** 3 ▸ pull the fields we care about from event */
   const {
-    metadata: { call_sid, call_duration_secs = 0, cost = 0 },
-    transcript,
+    metadata: {
+      call_sid,
+      call_duration_secs = 0,
+      cost = 0,
+    } = {},
+    transcript = [],
     analysis = {},
+    transcript_summary: legacySummary,
     conversation_id,
     status,
-  } = data;
+  } = event;
 
-  const transcript_summary = analysis.transcript_summary ?? "";  // 👈✔
-  console.log("Webhook payload:", JSON.stringify(data, null, 2));
+  // summary can live in analysis or directly on the root (legacy)
+  const transcript_summary =
+    analysis.transcript_summary ?? legacySummary ?? "";
 
+  console.log("Webhook summary:", transcript_summary);
+
+  /** 4 ▸ update DB */
   await connectDB();
   const call = await Call.findOne({ elevenLabsCallSid: call_sid });
-  if (!call) return NextResponse.json({ ok: true });
+  if (!call) {
+    console.warn("Call not found for SID", call_sid);
+    return NextResponse.json({ ok: true });
+  }
 
-  call.status = status === "done" ? "completed" : "failed";
-  call.duration = call_duration_secs;
-  call.cost = cost / 100;        // paise/cents → rupees/dollars
-  call.endTime = new Date();
+  call.status       = status === "done" ? "completed" : "failed";
+  call.duration     = call_duration_secs;
+  call.cost         = cost / 100;                 // paise/cents → rupees/dollars
+  call.endTime      = new Date();
   call.transcription = transcript
-    ?.map((seg: { role: string; message: string }) => `${seg.role}: ${seg.message}`)
+    .map((seg: { role: string; message: string }) => `${seg.role}: ${seg.message}`)
     .join("\n");
-  call.summary = transcript_summary || "";
-  call.conversationId = conversation_id;   //  👈  save it
-  call.hasAudio = status === "done";  //  👈  audio is ready
+  call.summary        = transcript_summary;
+  call.conversationId = conversation_id;
+  call.hasAudio       = status === "done";
+
   await call.save();
+
   return NextResponse.json({ ok: true });
 }
