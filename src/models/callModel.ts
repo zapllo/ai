@@ -32,6 +32,7 @@ export interface ICall extends Document {
   endTime?: Date;
   duration?: number;
   cost: number;                 // cents / paise
+  outcome?: string;
 }
 
 const CallSchema = new Schema<ICall>(
@@ -61,7 +62,7 @@ const CallSchema = new Schema<ICall>(
     summary: { type: String, default: "" },
     elevenLabsCallSid: String,
     twilioCallSid: String,
-
+    outcome: { type: String },
     notes: String,
     recordingUrl: String,
     conversationId: String,

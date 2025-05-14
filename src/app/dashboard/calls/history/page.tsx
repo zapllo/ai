@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { DashboardHeader } from "@/components/dashboard/header";
 import { DashboardSidebar } from "@/components/dashboard/sidebar";
@@ -81,6 +81,35 @@ import {
   ArrowDownToLine,
   Bot,
   User,
+  ThumbsUp,
+  ThumbsDown,
+  Pause,
+  Volume2,
+  Volume1,
+  VolumeX as VolumeMute,
+  RotateCcw,
+  RotateCw,
+  Star,
+  Sparkles,
+  Award,
+  Gauge,
+  BadgeCheck,
+  BadgeMinus,
+  BadgeX,
+  HandshakeIcon,
+  TimerReset,
+  HandCoins,
+  ShieldAlert,
+  Siren,
+  CircleCheck,
+  CircleOff,
+  CircleAlert,
+  TrendingUp,
+  TrendingDown,
+  ShieldCheck,
+  CircleDollarSign,
+  Briefcase,
+  CalendarCheck
 } from "lucide-react";
 import {
   Popover,
@@ -90,6 +119,8 @@ import {
 import { DateRange } from "react-day-picker";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Slider } from "@/components/ui/slider";
+import { Progress } from "@/components/ui/progress";
 import { string } from "zod";
 
 // Call type definition for history
@@ -110,6 +141,86 @@ type Call = {
   callType?: string;
   createdAt: string;
   conversationId?: string;
+  outcome?: string; // Can be any of the professional outcome types
+};
+
+// Define professional outcome types and their properties
+const outcomeTypes = {
+  "highly_interested": {
+    icon: <Sparkles className="h-3 w-3 mr-1" />,
+    label: "Highly Interested",
+    color: "bg-success/10 text-success border-success/20"
+  },
+  "interested": {
+    icon: <ThumbsUp className="h-3 w-3 mr-1" />,
+    label: "Interested",
+    color: "bg-success/10 text-success border-success/20"
+  },
+  "qualified_lead": {
+    icon: <BadgeCheck className="h-3 w-3 mr-1" />,
+    label: "Qualified Lead",
+    color: "bg-success/10 text-success border-success/20"
+  },
+  "appointment_scheduled": {
+    icon: <CalendarCheck className="h-3 w-3 mr-1" />,
+    label: "Appointment Set",
+    color: "bg-success/10 text-success border-success/20"
+  },
+  "opportunity_created": {
+    icon: <CircleDollarSign className="h-3 w-3 mr-1" />,
+    label: "Opportunity Created",
+    color: "bg-success/10 text-success border-success/20"
+  },
+  "needs_follow_up": {
+    icon: <RotateCw className="h-3 w-3 mr-1" />,
+    label: "Needs Follow-up",
+    color: "bg-warning/10 text-warning border-warning/20"
+  },
+  "considering": {
+    icon: <CircleAlert className="h-3 w-3 mr-1" />,
+    label: "Considering",
+    color: "bg-secondary/10 text-secondary border-secondary/20"
+  },
+  "neutral": {
+    icon: <BadgeMinus className="h-3 w-3 mr-1" />,
+    label: "Neutral Response",
+    color: "bg-secondary/10 text-secondary border-secondary/20"
+  },
+  "more_information_requested": {
+    icon: <Info className="h-3 w-3 mr-1" />,
+    label: "Info Requested",
+    color: "bg-secondary/10 text-secondary border-secondary/20"
+  },
+  "call_back_later": {
+    icon: <TimerReset className="h-3 w-3 mr-1" />,
+    label: "Call Back Later",
+    color: "bg-secondary/10 text-secondary border-secondary/20"
+  },
+  "not_interested": {
+    icon: <ThumbsDown className="h-3 w-3 mr-1" />,
+    label: "Not Interested",
+    color: "bg-destructive/10 text-destructive border-destructive/20"
+  },
+  "do_not_call": {
+    icon: <PhoneOff className="h-3 w-3 mr-1" />,
+    label: "Do Not Call",
+    color: "bg-destructive/10 text-destructive border-destructive/20"
+  },
+  "unqualified": {
+    icon: <BadgeX className="h-3 w-3 mr-1" />,
+    label: "Unqualified",
+    color: "bg-destructive/10 text-destructive border-destructive/20"
+  },
+  "wrong_number": {
+    icon: <XCircle className="h-3 w-3 mr-1" />,
+    label: "Wrong Number",
+    color: "bg-destructive/10 text-destructive border-destructive/20"
+  },
+  "complaint": {
+    icon: <ShieldAlert className="h-3 w-3 mr-1" />,
+    label: "Complaint Received",
+    color: "bg-destructive/10 text-destructive border-destructive/20"
+  },
 };
 
 export default function CallHistoryPage() {
@@ -126,10 +237,58 @@ export default function CallHistoryPage() {
   const [selectedCall, setSelectedCall] = useState<Call | null>(null);
   const [isExporting, setIsExporting] = useState(false);
 
+  // Audio player state
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [audioTime, setAudioTime] = useState(0);
+  const [audioDuration, setAudioDuration] = useState(0);
+  const [audioVolume, setAudioVolume] = useState(0.8);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
   // Fetch calls with filters
   useEffect(() => {
     fetchCalls();
   }, [currentPage, searchTerm, statusFilter, dateRange]);
+
+  // Handle audio events
+  useEffect(() => {
+    const audioElement = audioRef.current;
+    if (!audioElement) return;
+
+    const handleTimeUpdate = () => setAudioTime(audioElement.currentTime);
+    const handleDurationChange = () => setAudioDuration(audioElement.duration);
+    const handleEnded = () => setIsPlaying(false);
+
+    audioElement.addEventListener('timeupdate', handleTimeUpdate);
+    audioElement.addEventListener('durationchange', handleDurationChange);
+    audioElement.addEventListener('ended', handleEnded);
+
+    return () => {
+      audioElement.removeEventListener('timeupdate', handleTimeUpdate);
+      audioElement.removeEventListener('durationchange', handleDurationChange);
+      audioElement.removeEventListener('ended', handleEnded);
+    };
+  }, [selectedCall]);
+
+  // Handle play/pause
+  useEffect(() => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.play().catch(err => {
+          console.error("Error playing audio:", err);
+          setIsPlaying(false);
+        });
+      } else {
+        audioRef.current.pause();
+      }
+    }
+  }, [isPlaying]);
+
+  // Handle volume changes
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = audioVolume;
+    }
+  }, [audioVolume]);
 
   const fetchCalls = async () => {
     try {
@@ -220,6 +379,44 @@ export default function CallHistoryPage() {
     setDateRange(undefined);
   };
 
+  // Audio player functions
+  const togglePlayPause = () => {
+    setIsPlaying(!isPlaying);
+  };
+
+  const handleTimeChange = (value: number[]) => {
+    if (audioRef.current) {
+      audioRef.current.currentTime = value[0];
+      setAudioTime(value[0]);
+    }
+  };
+
+  const handleVolumeChange = (value: number[]) => {
+    setAudioVolume(value[0]);
+  };
+
+  const handleRewind = () => {
+    if (audioRef.current) {
+      const newTime = Math.max(0, audioRef.current.currentTime - 10);
+      audioRef.current.currentTime = newTime;
+      setAudioTime(newTime);
+    }
+  };
+
+  const handleForward = () => {
+    if (audioRef.current) {
+      const newTime = Math.min(audioDuration, audioRef.current.currentTime + 10);
+      audioRef.current.currentTime = newTime;
+      setAudioTime(newTime);
+    }
+  };
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "completed":
@@ -265,6 +462,34 @@ export default function CallHistoryPage() {
           </Badge>
         );
     }
+  };
+
+  const getOutcomeBadge = (outcome?: string) => {
+    if (!outcome) return null;
+
+    // Normalize outcome string (remove spaces, lowercase)
+    const normalizedOutcome = outcome.toLowerCase().replace(/\s+/g, '_');
+
+    // Try to match with our predefined outcomes
+    const matchedOutcome = Object.entries(outcomeTypes).find(([key]) =>
+      key === normalizedOutcome || key.includes(normalizedOutcome) || normalizedOutcome.includes(key)
+    );
+
+    if (matchedOutcome) {
+      const [key, config] = matchedOutcome;
+      return (
+        <Badge className={config.color}>
+          {config.icon} {config.label}
+        </Badge>
+      );
+    }
+
+    // Fallback for custom outcomes
+    return (
+      <Badge variant="outline" className="bg-secondary/10 text-secondary border-secondary/20">
+        <Info className="h-3 w-3 mr-1" /> {outcome}
+      </Badge>
+    );
   };
 
   // Animation variants
@@ -345,7 +570,7 @@ export default function CallHistoryPage() {
                     <SelectValue placeholder="Filter by status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="All">All statuses</SelectItem>
+                    <SelectItem value="">All statuses</SelectItem>
                     <SelectItem value="completed">Completed</SelectItem>
                     <SelectItem value="in-progress">In Progress</SelectItem>
                     <SelectItem value="failed">Failed</SelectItem>
@@ -438,6 +663,7 @@ export default function CallHistoryPage() {
                         <TableHead>Contact</TableHead>
                         <TableHead className="hidden md:table-cell">Phone</TableHead>
                         <TableHead>Status</TableHead>
+                        <TableHead className="hidden lg:table-cell">Outcome</TableHead>
                         <TableHead className="hidden md:table-cell">Agent</TableHead>
                         <TableHead className="hidden lg:table-cell">Date & Time</TableHead>
                         <TableHead className="hidden lg:table-cell">Duration</TableHead>
@@ -467,6 +693,9 @@ export default function CallHistoryPage() {
                           </TableCell>
                           <TableCell>
                             {getStatusBadge(call.status)}
+                          </TableCell>
+                          <TableCell className="hidden lg:table-cell">
+                            {call.outcome ? getOutcomeBadge(call.outcome) : "-"}
                           </TableCell>
                           <TableCell className="hidden md:table-cell">
                             {call.agentName || "-"}
@@ -570,10 +799,9 @@ export default function CallHistoryPage() {
           </motion.div>
         </div>
       </main>
-
       {/* Call Details Dialog */}
       <Dialog open={!!selectedCall} onOpenChange={(open) => !open && setSelectedCall(null)}>
-        <DialogContent className="sm:max-w-[600px] h-fit max-h-screen overflow-y-scroll scrollbar-hidden">
+        <DialogContent className="sm:max-w-[600px] h-fit max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Call Details</DialogTitle>
             <DialogDescription>
@@ -597,6 +825,55 @@ export default function CallHistoryPage() {
                   {getStatusBadge(selectedCall.status)}
                 </div>
               </div>
+
+              {/* Call Outcome Card */}
+              {selectedCall.outcome && (
+                <Card className="bg-card/30 backdrop-blur-sm">
+                  <CardContent className="pt-6">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-1">
+                        <p className="text-sm text-muted-foreground">Call Outcome</p>
+                        <div className="flex items-center">
+                          {getOutcomeBadge(selectedCall.outcome)}
+                        </div>
+                      </div>
+
+                      {/* Visual indicator based on outcome */}
+                      <div className="flex-shrink-0">
+                        {selectedCall.outcome && (
+                          <div className={cn(
+                            "rounded-full w-12 h-12 flex items-center justify-center",
+                            selectedCall.outcome.toLowerCase().includes("interest") ||
+                            selectedCall.outcome.toLowerCase().includes("qualified") ||
+                            selectedCall.outcome.toLowerCase().includes("appointment") ||
+                            selectedCall.outcome.toLowerCase().includes("opportunity")
+                              ? "bg-success/10"
+                              : selectedCall.outcome.toLowerCase().includes("not_") ||
+                                selectedCall.outcome.toLowerCase().includes("unqualified") ||
+                                selectedCall.outcome.toLowerCase().includes("wrong") ||
+                                selectedCall.outcome.toLowerCase().includes("do_not")
+                                ? "bg-destructive/10"
+                                : "bg-secondary/10"
+                          )}>
+                            {selectedCall.outcome.toLowerCase().includes("interest") ||
+                             selectedCall.outcome.toLowerCase().includes("qualified") ||
+                             selectedCall.outcome.toLowerCase().includes("appointment") ||
+                             selectedCall.outcome.toLowerCase().includes("opportunity")
+                              ? <ThumbsUp className="h-6 w-6 text-success" />
+                              : selectedCall.outcome.toLowerCase().includes("not_") ||
+                                selectedCall.outcome.toLowerCase().includes("unqualified") ||
+                                selectedCall.outcome.toLowerCase().includes("wrong") ||
+                                selectedCall.outcome.toLowerCase().includes("do_not")
+                                ? <ThumbsDown className="h-6 w-6 text-destructive" />
+                                : <Info className="h-6 w-6 text-secondary" />
+                            }
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
               <Separator />
 
@@ -638,7 +915,14 @@ export default function CallHistoryPage() {
                   </p>
                 </div>
 
-
+                {selectedCall.cost !== undefined && (
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground">Cost</p>
+                    <p className="text-sm">
+                      ${selectedCall.cost.toFixed(2)}
+                    </p>
+                  </div>
+                )}
               </div>
 
               {selectedCall.notes && (
@@ -703,19 +987,121 @@ export default function CallHistoryPage() {
 
                 <TabsContent value="recording">
                   {selectedCall.conversationId ? (
-                    <audio controls className="w-full mt-2">
-                      <source src={`/api/audio/${encodeURIComponent(
-                        selectedCall.conversationId,
-                      )}`} type="audio/mpeg" />
-                      Your browser does not support the audio element.
-                    </audio>
+                    <div className="space-y-4">
+                      {/* Hidden audio element for programmatic control */}
+                      <audio
+                        ref={audioRef}
+                        src={`/api/audio/${encodeURIComponent(selectedCall.conversationId)}`}
+                        preload="metadata"
+                        className="hidden"
+                      />
+
+                      {/* Custom audio player UI */}
+                      <div className="bg-muted/30 rounded-lg p-4 space-y-4">
+                        <div className="flex items-center justify-between">
+                          <div className="text-sm font-medium">
+                            {formatTime(audioTime)} / {formatTime(audioDuration)}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 rounded-full hover:bg-background"
+                              onClick={() => handleVolumeChange([audioVolume === 0 ? 0.8 : 0])}
+                              title={audioVolume === 0 ? "Unmute" : "Mute"}
+                            >
+                              {audioVolume === 0 ? (
+                                <VolumeMute className="h-4 w-4" />
+                              ) : audioVolume < 0.5 ? (
+                                <Volume1 className="h-4 w-4" />
+                              ) : (
+                                <Volume2 className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </div>
+                        </div>
+
+                        {/* Progress bar */}
+                        <div className="w-full">
+                          <Slider
+                            value={[audioTime]}
+                            max={audioDuration || 100}
+                            step={0.1}
+                            onValueChange={handleTimeChange}
+                            className="cursor-pointer"
+                            aria-label="Playback progress"
+                          />
+                        </div>
+
+                        {/* Controls */}
+                        <div className="flex items-center justify-center gap-2 py-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-9 w-9 rounded-full hover:bg-background"
+                            onClick={handleRewind}
+                            title="Rewind 10s"
+                          >
+                            <RotateCcw className="h-4 w-4" />
+                          </Button>
+
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="h-12 w-12 rounded-full bg-background hover:bg-background/80"
+                            onClick={togglePlayPause}
+                            title={isPlaying ? "Pause" : "Play"}
+                          >
+                            {isPlaying ? (
+                              <Pause className="h-6 w-6" />
+                            ) : (
+                              <PlayCircle className="h-6 w-6" />
+                            )}
+                          </Button>
+
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-9 w-9 rounded-full hover:bg-background"
+                            onClick={handleForward}
+                            title="Forward 10s"
+                          >
+                            <RotateCw className="h-4 w-4" />
+                          </Button>
+                        </div>
+
+                        {/* Volume slider (collapsible) */}
+                        <div className="flex items-center gap-3 px-1">
+                          <div className="flex-shrink-0">
+                            {audioVolume === 0 ? (
+                              <VolumeMute className="h-4 w-4 text-muted-foreground" />
+                            ) : audioVolume < 0.5 ? (
+                              <Volume1 className="h-4 w-4 text-muted-foreground" />
+                            ) : (
+                              <Volume2 className="h-4 w-4 text-muted-foreground" />
+                            )}
+                          </div>
+                          <Slider
+                            value={[audioVolume]}
+                            max={1}
+                            step={0.01}
+                            onValueChange={handleVolumeChange}
+                            className="cursor-pointer"
+                            aria-label="Volume control"
+                          />
+                        </div>
+                      </div>
+                    </div>
                   ) : (
-                    <p className="text-muted-foreground text-sm">Recording not available.</p>
+                    <div className="flex flex-col items-center justify-center py-8 bg-muted/30 rounded-md">
+                      <VolumeX className="h-10 w-10 text-muted-foreground mb-2" />
+                      <p className="text-muted-foreground text-sm">Audio recording not available.</p>
+                    </div>
                   )}
                 </TabsContent>
               </Tabs>
 
-              <DialogFooter className="flex gap-3">
+              <DialogFooter className="flex flex-wrap gap-3 sm:gap-0">
                 <Button
                   variant="outline"
                   onClick={() => {

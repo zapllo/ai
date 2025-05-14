@@ -3,8 +3,12 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import connectDB from "@/lib/db";
 import Call from "@/models/callModel";
+import { OpenAI } from "openai";
 
 const SECRET = process.env.ELEVENLABS_WEBHOOK_SECRET!;
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 /** Verify ElevenLabs signature header */
 function isValidSignature(raw: Buffer, header: string | null) {
@@ -26,6 +30,73 @@ function isValidSignature(raw: Buffer, header: string | null) {
     .digest("hex");
 
   return crypto.timingSafeEqual(Buffer.from(received), Buffer.from(expected));
+}
+
+async function analyzeCallOutcome(summary: string): Promise<string> {
+  if (!summary || summary.trim() === "") {
+    return "neutral";
+  }
+
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [
+        {
+          role: "system",
+          content: `You are an expert sales analyst. Analyze the following call summary and determine the outcome.
+          Select the most appropriate outcome from these options:
+          - highly_interested: Prospect showed strong interest and is eager to proceed
+          - interested: Prospect showed general interest in the offering
+          - qualified_lead: Prospect meets qualification criteria and has potential
+          - appointment_scheduled: A meeting or follow-up appointment was set
+          - opportunity_created: Prospect is ready for a proposal or next steps in sales process
+          - needs_follow_up: Requires additional contact to progress
+          - considering: Prospect is thinking about the offer but not committed
+          - neutral: Conversation was neither positive nor negative
+          - more_information_requested: Prospect needs additional details
+          - call_back_later: Prospect asked to be contacted at a later time
+          - not_interested: Prospect explicitly declined the offer
+          - do_not_call: Prospect requested no further contact
+          - unqualified: Prospect does not meet basic criteria for the offering
+          - wrong_number: Reached an incorrect or unintended recipient
+          - complaint: Prospect expressed dissatisfaction or filed a complaint
+
+          Respond with only one of these outcome types based on your analysis.`
+        },
+        {
+          role: "user",
+          content: `Call summary: ${summary}`
+        }
+      ],
+      temperature: 0.3,
+      max_tokens: 50
+    });
+
+    const outcome = response.choices[0].message.content?.trim().toLowerCase() || "neutral";
+
+    // Normalize the outcome to match our expected format
+    if (outcome.includes("highly") && outcome.includes("interest")) return "highly_interested";
+    if (outcome.includes("interest") && !outcome.includes("not")) return "interested";
+    if (outcome.includes("qualified") && !outcome.includes("un")) return "qualified_lead";
+    if (outcome.includes("appointment") || outcome.includes("schedul")) return "appointment_scheduled";
+    if (outcome.includes("opportunity")) return "opportunity_created";
+    if (outcome.includes("follow") && outcome.includes("up")) return "needs_follow_up";
+    if (outcome.includes("consider")) return "considering";
+    if (outcome.includes("neutral")) return "neutral";
+    if (outcome.includes("more") && outcome.includes("information")) return "more_information_requested";
+    if (outcome.includes("call") && outcome.includes("back")) return "call_back_later";
+    if (outcome.includes("not") && outcome.includes("interest")) return "not_interested";
+    if (outcome.includes("do") && outcome.includes("not") && outcome.includes("call")) return "do_not_call";
+    if (outcome.includes("unqualified")) return "unqualified";
+    if (outcome.includes("wrong")) return "wrong_number";
+    if (outcome.includes("complaint")) return "complaint";
+
+    // If we can't match to a standard outcome, return the raw outcome
+    return outcome;
+  } catch (error) {
+    console.error("Error analyzing call outcome:", error);
+    return "neutral";
+  }
 }
 
 export async function POST(req: NextRequest) {
@@ -74,7 +145,11 @@ export async function POST(req: NextRequest) {
 
   console.log("Webhook summary:", transcript_summary);
 
-  /** 4 ▸ update DB */
+  /** 4 ▸ analyze the call outcome based on the summary */
+  const outcome = await analyzeCallOutcome(transcript_summary);
+  console.log("Call outcome:", outcome);
+
+  /** 5 ▸ update DB */
   await connectDB();
   const call = await Call.findOne({ elevenLabsCallSid: call_sid });
   if (!call) {
@@ -92,6 +167,7 @@ export async function POST(req: NextRequest) {
   call.summary        = transcript_summary;
   call.conversationId = conversation_id;
   call.hasAudio       = status === "done";
+  call.outcome        = outcome;  // Add the analyzed outcome
 
   await call.save();
 
