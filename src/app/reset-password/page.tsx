@@ -3,17 +3,15 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useAuth } from "@/contexts/AuthContext";
-import { motion, AnimatePresence, useAnimation } from "framer-motion";
+import { motion } from "framer-motion";
 import {
-  Loader2, Eye, EyeOff, ArrowRight,
-  Mail, Lock, AlertCircle, Mic, Sparkles,
-  Waves, Volume, BrainCircuit, Bot, Radio,
-  Zap, Cpu, GitBranch, Network, BarChart2
+  Loader2, ArrowRight, Eye, EyeOff, AlertCircle,
+  Volume, BrainCircuit, Waves, Mic, Zap, Lock,
+  Cpu, ArrowLeft, BrainCog, CheckCircle, Shield
 } from "lucide-react";
 
 // UI Components
@@ -29,40 +27,52 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Separator } from "@/components/ui/separator";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
-// Form schema
-const loginSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-});
+// Form schema with password validation
+const resetPasswordSchema = z
+  .object({
+    password: z.string()
+      .min(6, "Password must be at least 6 characters"),
+    confirmPassword: z.string()
+      .min(6, "Password must be at least 6 characters"),
+  })
+  .refine(data => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
 
-export default function LoginPage() {
+export default function ResetPasswordPage() {
   const router = useRouter();
-  const { login, error, loading } = useAuth();
+  const searchParams = useSearchParams();
+  const token = searchParams.get('token');
+
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
   const [voiceAssistActive, setVoiceAssistActive] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const animationRef = useRef<number>(0);
 
-  const form = useForm<z.infer<typeof loginSchema>>({
-    resolver: zodResolver(loginSchema),
+  const form = useForm<z.infer<typeof resetPasswordSchema>>({
+    resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
-      email: "",
       password: "",
+      confirmPassword: "",
     },
   });
 
+  // Check if token exists
+  useEffect(() => {
+    if (!token) {
+      setError("Invalid or missing reset token. Please request a new password reset link.");
+    }
+  }, [token]);
+
   // Clear form error when form changes
   useEffect(() => {
-    const subscription = form.watch(() => setFormError(null));
+    const subscription = form.watch(() => setError(null));
     return () => subscription.unsubscribe();
   }, [form.watch]);
 
@@ -137,7 +147,7 @@ export default function LoginPage() {
           const dy = particlesArray[i].y - particlesArray[j].y;
           const distance = Math.sqrt(dx * dx + dy * dy);
 
-          if (distance < 100 && ctx) {
+          if (distance < 100) {
             ctx.beginPath();
             ctx.strokeStyle = `hsla(${hue}, 100%, 50%, ${0.2 - distance / 500})`;
             ctx.lineWidth = 0.2;
@@ -182,11 +192,40 @@ export default function LoginPage() {
     };
   }, []);
 
-  const onSubmit = async (data: z.infer<typeof loginSchema>) => {
+  const onSubmit = async (data: z.infer<typeof resetPasswordSchema>) => {
+    if (!token) {
+      setError("Invalid or missing reset token");
+      return;
+    }
+
     try {
-      await login(data.email, data.password);
+      setLoading(true);
+      setError(null);
+
+      const response = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          token,
+          password: data.password
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Failed to reset password');
+      }
+
+      setSuccess(true);
+      // Clear form
+      form.reset();
     } catch (err: any) {
-      setFormError(err.message || "An error occurred during login");
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -206,7 +245,7 @@ export default function LoginPage() {
     }
   };
 
-  // Data flow animation component
+  // Data flow animation
   const DataFlow = () => {
     return (
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -275,13 +314,9 @@ export default function LoginPage() {
   const GlowingOrbs = () => {
     return (
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {/* Primary large orb */}
         <motion.div
           className="absolute w-96 h-96 rounded-full bg-gradient-to-r from-primary/20 to-blue-500/20 filter blur-[80px]"
-          style={{
-            top: '30%',
-            left: '20%',
-          }}
+          style={{ top: '30%', left: '20%' }}
           animate={{
             scale: [1, 1.2, 1],
             opacity: [0.4, 0.6, 0.4],
@@ -292,14 +327,9 @@ export default function LoginPage() {
             repeatType: "reverse",
           }}
         />
-
-        {/* Secondary orb */}
         <motion.div
           className="absolute w-72 h-72 rounded-full bg-gradient-to-r from-violet-500/20 to-primary/20 filter blur-[70px]"
-          style={{
-            bottom: '20%',
-            right: '15%',
-          }}
+          style={{ bottom: '20%', right: '15%' }}
           animate={{
             scale: [1, 1.3, 1],
             opacity: [0.3, 0.5, 0.3],
@@ -312,99 +342,6 @@ export default function LoginPage() {
           }}
         />
       </div>
-    );
-  };
-
-  // HUD-like interface elements
-  const FuturisticHUD = () => {
-    return (
-      <div className="pointer-events-none">
-        {/* Top left corner element */}
-        <motion.div
-          className="fixed top-4 left-4 border border-primary/30 bg-black/10 backdrop-blur-sm rounded-md px-3 py-1.5 text-xs font-mono text-primary/70"
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.5, duration: 0.5 }}
-        >
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-            <span>SYSTEM ONLINE</span>
-          </div>
-        </motion.div>
-
-        {/* Top right corner element */}
-        <motion.div
-          className="fixed top-4 right-4 border border-primary/30 bg-black/10 backdrop-blur-sm rounded-md text-xs font-mono text-primary/70"
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.7, duration: 0.5 }}
-        >
-          <div className="flex items-center gap-2 px-3 py-1.5">
-            <Cpu className="h-3 w-3" />
-            <span>AI VOICE SYSTEM v2.0</span>
-          </div>
-        </motion.div>
-
-        {/* Circular HUD element */}
-        <motion.div
-          className="fixed top-20 right-8 w-24 h-24 rounded-full border border-primary/20 flex items-center justify-center"
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 0.7, scale: 1 }}
-          transition={{ delay: 1, duration: 0.5 }}
-        >
-          <motion.div
-            className="absolute inset-2 rounded-full border border-primary/30"
-            animate={{ rotate: 360 }}
-            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-          />
-          <motion.div
-            className="absolute inset-4 rounded-full border border-primary/20"
-            animate={{ rotate: -360 }}
-            transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-          />
-          <motion.div
-            className="absolute w-4 h-4 rounded-full bg-primary/50"
-            animate={{
-              scale: [1, 1.5, 1],
-              opacity: [0.5, 0.8, 0.5]
-            }}
-            transition={{ duration: 2, repeat: Infinity }}
-          />
-        </motion.div>
-      </div>
-    );
-  };
-
-  // Futuristic Sound Waveform
-  const SoundWaveform = () => {
-    return (
-      <motion.div
-        className="fixed bottom-8 left-1/2 transform -translate-x-1/2 flex items-center gap-0.5 h-12 z-10 pointer-events-none"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 0.7, y: 0 }}
-        transition={{ delay: 0.8 }}
-      >
-        {Array.from({ length: 28 }).map((_, i) => (
-          <motion.div
-            key={i}
-            className="w-0.5 bg-gradient-to-t from-primary/30 to-primary/80 rounded-full"
-            animate={{
-              height: [
-                4 + Math.sin(i * 0.3) * 4,
-                15 + Math.sin((i * 0.3) + 2) * 15,
-                4 + Math.sin(i * 0.3) * 4
-              ],
-            }}
-            transition={{
-              duration: 1.5,
-              repeat: Infinity,
-              repeatType: "reverse",
-              ease: "easeInOut",
-              delay: i * 0.02,
-            }}
-          />
-        ))}
-      </motion.div>
     );
   };
 
@@ -437,6 +374,70 @@ export default function LoginPage() {
     );
   };
 
+  // HUD-like interface elements
+  const FuturisticHUD = () => {
+    return (
+      <div className="pointer-events-none">
+        <motion.div
+          className="fixed top-4 left-4 border border-primary/30 bg-black/10 backdrop-blur-sm rounded-md px-3 py-1.5 text-xs font-mono text-primary/70"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.5, duration: 0.5 }}
+        >
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+            <span>SYSTEM ONLINE</span>
+          </div>
+        </motion.div>
+
+        <motion.div
+          className="fixed top-4 right-4 border border-primary/30 bg-black/10 backdrop-blur-sm rounded-md text-xs font-mono text-primary/70"
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.7, duration: 0.5 }}
+        >
+          <div className="flex items-center gap-2 px-3 py-1.5">
+            <Cpu className="h-3 w-3" />
+            <span>PASSWORD RESET v2.0</span>
+          </div>
+        </motion.div>
+      </div>
+    );
+  };
+
+  // Sound waveform animation
+  const SoundWaveform = () => {
+    return (
+      <motion.div
+        className="fixed bottom-8 left-1/2 transform -translate-x-1/2 flex items-center gap-0.5 h-12 z-10 pointer-events-none"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 0.7, y: 0 }}
+        transition={{ delay: 0.8 }}
+      >
+        {Array.from({ length: 28 }).map((_, i) => (
+          <motion.div
+            key={i}
+            className="w-0.5 bg-gradient-to-t from-primary/30 to-primary/80 rounded-full"
+            animate={{
+              height: [
+                4 + Math.sin(i * 0.3) * 4,
+                15 + Math.sin((i * 0.3) + 2) * 15,
+                4 + Math.sin(i * 0.3) * 4
+              ],
+            }}
+            transition={{
+              duration: 1.5,
+              repeat: Infinity,
+              repeatType: "reverse",
+              ease: "easeInOut",
+              delay: i * 0.02,
+            }}
+          />
+        ))}
+      </motion.div>
+    );
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden bg-black">
       {/* Primary Canvas Background Animation */}
@@ -461,7 +462,7 @@ export default function LoginPage() {
       <SoundWaveform />
 
       <motion.div
-        className="max-w-md w-full space-y-8 relative z-10"
+        className="max-w-md w-full space-y-8 relative z-10 px-4"
         initial="hidden"
         animate="visible"
         variants={staggerContainer}
@@ -498,33 +499,6 @@ export default function LoginPage() {
                   repeatType: "reverse"
                 }}
               />
-
-              {/* Orbiting particles */}
-              {Array.from({ length: 3 }).map((_, i) => (
-                <motion.div
-                  key={i}
-                  className="absolute w-1.5 h-1.5 rounded-full bg-primary/80"
-                  initial={{
-                    x: 0,
-                    y: 0,
-                    opacity: 0.5
-                  }}
-                  animate={{
-                    x: [0, Math.cos(i * (Math.PI * 2 / 3)) * 18],
-                    y: [0, Math.sin(i * (Math.PI * 2 / 3)) * 18],
-                    opacity: [0.5, 1, 0.5]
-                  }}
-                  transition={{
-                    duration: 3,
-                    repeat: Infinity,
-                    repeatType: "reverse",
-                    ease: "easeInOut",
-                    delay: i * 0.3
-                  }}
-                />
-              ))}
-
-
             </motion.div>
           </Link>
           <div className="flex gap-2 items-center justify-center">
@@ -539,10 +513,9 @@ export default function LoginPage() {
               className="text-3xl font-bold tracking-tight relative"
             >
               <span className="relative inline-block">
-                Welcome to{" "}
                 <span className="relative inline-block">
                   <span className="relative z-10 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500 font-extrabold">
-                    Zapllo Voice
+                    Reset Password
                   </span>
                   <motion.span
                     className="absolute -bottom-0.5 left-0 h-[2px] bg-gradient-to-r from-blue-400/80 to-indigo-500/80"
@@ -568,10 +541,9 @@ export default function LoginPage() {
                 </span>
               </span>
             </motion.h1>
-
           </div>
           <p className="text-muted-foreground mt-2">
-            Experience the future of voice AI technology
+            Create a new secure password for your account
           </p>
         </motion.div>
 
@@ -597,222 +569,202 @@ export default function LoginPage() {
               transition={{ duration: 3, repeat: Infinity }}
             />
 
-            {/* Decorative gradient accents */}
+            {/* Decorative elements */}
             <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-primary/30 to-transparent rounded-full filter blur-2xl opacity-20 -z-10 transform translate-x-1/2 -translate-y-1/2"></div>
             <div className="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-tr from-blue-500/30 to-transparent rounded-full filter blur-2xl opacity-20 -z-10 transform -translate-x-1/2 translate-y-1/2"></div>
 
-            {/* Animated circuit lines */}
-            <div className="absolute inset-0 overflow-hidden rounded-lg pointer-events-none">
-              <svg className="absolute inset-0 w-full h-full opacity-10" viewBox="0 0 100 100" preserveAspectRatio="none">
-                <motion.path
-                  d="M0,20 L30,20 C35,20 35,10 40,10 L100,10"
-                  stroke="rgb(59, 130, 246)"
-                  strokeWidth="0.2"
-                  fill="none"
-                  initial={{ pathLength: 0 }}
-                  animate={{ pathLength: [0, 1, 1, 0] }}
-                  transition={{ duration: 3, repeat: Infinity, repeatDelay: 1 }}
-                />
-                <motion.path
-                  d="M0,80 L20,80 C25,80 25,90 30,90 L100,90"
-                  stroke="rgb(59, 130, 246)"
-                  strokeWidth="0.2"
-                  fill="none"
-                  initial={{ pathLength: 0 }}
-                  animate={{ pathLength: [0, 1, 1, 0] }}
-                  transition={{ duration: 3, repeat: Infinity, repeatDelay: 1, delay: 1.5 }}
-                />
-                <motion.path
-                  d="M100,30 L60,30 C55,30 55,50 50,50 L0,50"
-                  stroke="rgb(59, 130, 246)"
-                  strokeWidth="0.2"
-                  fill="none"
-                  initial={{ pathLength: 0 }}
-                  animate={{ pathLength: [0, 1, 1, 0] }}
-                  transition={{ duration: 3, repeat: Infinity, repeatDelay: 1, delay: 0.7 }}
-                />
-              </svg>
-            </div>
-
-            <CardHeader className="space-y-1 pb-2">
+            <CardHeader className="space-y-1 pb-4">
               <CardTitle className="text-2xl font-semibold flex items-center gap-2">
                 <motion.div
-                  animate={{
-                    rotate: [0, 360]
-                  }}
-                  transition={{
-                    duration: 20,
-                    repeat: Infinity,
-                    ease: "linear"
-                  }}
+                  animate={{ rotate: [0, 360] }}
+                  transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
                 >
-                  <BrainCircuit className="h-5 w-5 text-primary" />
+                  <Shield className="h-5 w-5 text-primary" />
                 </motion.div>
-                <span>Sign in</span>
+                <span>New Password</span>
               </CardTitle>
               <CardDescription>
-                Access your AI voice dashboard
+                Enter your new password below
               </CardDescription>
             </CardHeader>
 
             <CardContent>
-              {(error || formError) && (
+              {error && (
                 <Alert variant="destructive" className="mb-6 border-red-500/20 bg-red-500/10">
                   <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>{error || formError}</AlertDescription>
+                  <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
 
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-foreground/80 flex items-center gap-1.5">
-                          <Mail className="h-3.5 w-3.5 text-primary/80" />
-                          Email
-                        </FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input
-                              placeholder="you@example.com"
-                              className="pl-10 bg-background/50 border-primary/20 focus:border-primary focus-visible:ring-1 focus-visible:ring-primary transition-all"
-                              {...field}
-                            />
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+              {success ? (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-primary/10 border border-primary/20 rounded-lg p-4 mb-4"
+                >
+                  <div className="flex flex-col items-center text-center space-y-2">
+                    <div className="h-12 w-12 rounded-full bg-primary/20 flex items-center justify-center mb-2">
+                      <CheckCircle className="h-6 w-6 text-primary" />
+                    </div>
+                    <h3 className="font-semibold text-lg">Password Reset Successful</h3>
+                    <p className="text-muted-foreground text-sm">
+                      Your password has been updated successfully. You can now log in with your new password.
+                    </p>
 
-                  <FormField
-                    control={form.control}
-                    name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <div className="flex items-center justify-between">
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="mt-2"
+                    >
+                      <Button
+                        className="mt-2 relative overflow-hidden bg-gradient-to-r from-primary to-blue-600 hover:from-primary/90 hover:to-blue-500 border-none"
+                        onClick={() => router.push('/login')}
+                      >
+                        <motion.span
+                          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                          initial={{ x: '-100%' }}
+                          animate={{ x: ['100%'] }}
+                          transition={{
+                            repeat: Infinity,
+                            duration: 1.5,
+                            ease: "linear",
+                            repeatDelay: 0.5
+                          }}
+                        />
+                        <span className="relative z-10">Go to Login</span>
+                      </Button>
+                    </motion.div>
+                  </div>
+                </motion.div>
+              ) : (
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                 <FormField
+                      control={form.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
                           <FormLabel className="text-foreground/80 flex items-center gap-1.5">
                             <Lock className="h-3.5 w-3.5 text-primary/80" />
-                            Password
+                            New Password
                           </FormLabel>
-                          <Link
-                            href="/forgot-password"
-                            className="text-xs text-primary hover:text-primary/90 hover:underline z-20 relative"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            Forgot password?
-                          </Link>
-                        </div>
-                        <FormControl>
-                          <div className="relative">
-                            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input
-                              type={showPassword ? "text" : "password"}
-                              className="pl-10 pr-10 bg-background/50 border-primary/20 focus:border-primary focus-visible:ring-1 focus-visible:ring-primary transition-all"
-                              placeholder="••••••••"
-                              {...field}
-                            />
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              className="absolute right-0 top-0 h-full px-3 py-2 hover:text-primary hover:bg-transparent"
-                              onClick={() => setShowPassword(!showPassword)}
-                            >
-                              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                            </Button>
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <motion.div
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <Button
-                      type="submit"
-                      className="w-full relative overflow-hidden group bg-gradient-to-r from-primary to-blue-600 hover:from-primary/90 hover:to-blue-500 border-none"
-                      disabled={loading}
-                    >
-                      {/* Animated button effects */}
-                      <motion.span
-                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
-                        initial={{ x: '-100%' }}
-                        animate={{ x: ['100%'] }}
-                        transition={{
-                          repeat: Infinity,
-                          duration: 1.5,
-                          ease: "linear",
-                          repeatDelay: 0.5
-                        }}
-                      />
-
-                      {/* Button inner glow */}
-                      <motion.span
-                        className="absolute inset-0 rounded opacity-0"
-                        animate={{
-                          boxShadow: [
-                            'inset 0 0 10px rgba(59, 130, 246, 0)',
-                            'inset 0 0 20px rgba(59, 130, 246, 0.5)',
-                            'inset 0 0 10px rgba(59, 130, 246, 0)'
-                          ],
-                          opacity: [0, 0.5, 0]
-                        }}
-                        transition={{
-                          duration: 2,
-                          repeat: Infinity
-                        }}
-                      />
-
-                      {loading ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          <span className="relative z-10">Authenticating...</span>
-                        </>
-                      ) : (
-                        <div className="flex items-center text-white relative z-10">
-                          <span>Access System</span>
-                          <motion.div
-                            animate={{
-                              x: [0, 3, 0]
-                            }}
-                            transition={{
-                              duration: 1.5,
-                              repeat: Infinity,
-                              repeatType: "reverse"
-                            }}
-                          >
-                            <ArrowRight className="ml-2 h-4 w-4" />
-                          </motion.div>
-                          {/* <motion.div
-                            animate={{
-                              scale: [1, 1.5, 1],
-                              opacity: [0.5, 1, 0.5]
-                            }}
-                            transition={{
-                              duration: 2,
-                              repeat: Infinity
-                            }}
-                          >
-                            <Sparkles className="ml-1 h-3 w-3 text-yellow-300" />
-                          </motion.div> */}
-                        </div>
+                          <FormControl>
+                            <div className="relative">
+                              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                              <Input
+                                type={showPassword ? "text" : "password"}
+                                className="pl-10 pr-10 bg-background/50 border-primary/20 focus:border-primary focus-visible:ring-1 focus-visible:ring-primary transition-all"
+                                placeholder="••••••••"
+                                {...field}
+                              />
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="absolute right-0 top-0 h-full px-3 py-2 hover:text-primary hover:bg-transparent"
+                                onClick={() => setShowPassword(!showPassword)}
+                              >
+                                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                              </Button>
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
                       )}
-                    </Button>
-                  </motion.div>
-                </form>
-              </Form>
+                    />
 
+                    <FormField
+                      control={form.control}
+                      name="confirmPassword"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-foreground/80 flex items-center gap-1.5">
+                            <Lock className="h-3.5 w-3.5 text-primary/80" />
+                            Confirm Password
+                          </FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                              <Input
+                                type={showPassword ? "text" : "password"}
+                                className="pl-10 bg-background/50 border-primary/20 focus:border-primary focus-visible:ring-1 focus-visible:ring-primary transition-all"
+                                placeholder="••••••••"
+                                {...field}
+                              />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="pt-2"
+                    >
+                      <Button
+                        type="submit"
+                        className="w-full relative overflow-hidden group bg-gradient-to-r from-primary to-blue-600 hover:from-primary/90 hover:to-blue-500 border-none"
+                        disabled={loading}
+                      >
+                        {/* Animated button effects */}
+                        <motion.span
+                          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                          initial={{ x: '-100%' }}
+                          animate={{ x: ['100%'] }}
+                          transition={{
+                            repeat: Infinity,
+                            duration: 1.5,
+                            ease: "linear",
+                            repeatDelay: 0.5
+                          }}
+                        />
 
+                        {/* Button inner glow */}
+                        <motion.span
+                          className="absolute inset-0 rounded opacity-0"
+                          animate={{
+                            boxShadow: [
+                              'inset 0 0 10px rgba(59, 130, 246, 0)',
+                              'inset 0 0 20px rgba(59, 130, 246, 0.5)',
+                              'inset 0 0 10px rgba(59, 130, 246, 0)'
+                            ],
+                            opacity: [0, 0.5, 0]
+                          }}
+                          transition={{
+                            duration: 2,
+                            repeat: Infinity
+                          }}
+                        />
 
+                        {loading ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            <span className="relative z-10">Processing...</span>
+                          </>
+                        ) : (
+                          <div className="flex items-center text-white relative z-10">
+                            <span>Reset Password</span>
+                            <motion.div
+                              animate={{
+                                x: [0, 3, 0]
+                              }}
+                              transition={{
+                                duration: 1.5,
+                                repeat: Infinity,
+                                repeatType: "reverse"
+                              }}
+                            >
+                              <ArrowRight className="ml-2 h-4 w-4" />
+                            </motion.div>
+                          </div>
+                        )}
+                      </Button>
+                    </motion.div>
+                  </form>
+                </Form>
+              )}
             </CardContent>
             <CardFooter className="flex flex-col space-y-4 border-t border-primary/20 p-6 backdrop-blur-sm bg-black/10">
               <div className="text-center text-sm">
@@ -826,27 +778,13 @@ export default function LoginPage() {
                     repeatType: "reverse"
                   }}
                 >
-                  Don't have an account?{" "}
-                  <Link href="/register" className="text-primary font-medium hover:underline hover:text-primary/80 transition-colors relative group">
-                    Sign up
+                  <Link href="/login" className="text-primary font-medium hover:underline hover:text-primary/80 transition-colors relative group flex items-center justify-center">
+                    <ArrowLeft className="mr-1 h-3.5 w-3.5" />
+                    <span>Back to login</span>
                     <motion.span
                       className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full"
                       transition={{ duration: 0.3 }}
                     />
-                    <motion.span
-                      className="absolute -right-4 top-0"
-                      animate={{
-                        opacity: [0, 1, 0],
-                        scale: [0.8, 1.2, 0.8],
-                      }}
-                      transition={{
-                        duration: 2,
-                        repeat: Infinity,
-                        repeatType: "reverse"
-                      }}
-                    >
-                      <Zap className="h-3 w-3 text-yellow-400" />
-                    </motion.span>
                   </Link>
                 </motion.div>
               </div>
@@ -867,22 +805,12 @@ export default function LoginPage() {
             }}
           >
             <Volume className="h-3 w-3 text-primary/80" />
-            <span>Powered by Zapllo&apos;s advanced voice AI technology</span>
+            <span>Protected by Zapllo&apos;s advanced AI security</span>
           </motion.div>
-          <div className="mt-2">
-            By signing in, you agree to our{" "}
-            <Link href="/terms" className="text-primary hover:underline transition-colors">
-              Terms of Service
-            </Link>{" "}
-            and{" "}
-            <Link href="/privacy" className="text-primary hover:underline transition-colors">
-              Privacy Policy
-            </Link>
-          </div>
         </motion.div>
       </motion.div>
 
-      {/* Voice assistant floating button with futuristic effects */}
+      {/* Voice assistant button */}
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>

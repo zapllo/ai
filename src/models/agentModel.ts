@@ -6,6 +6,7 @@ export interface IAgent extends Document {
   description?: string;
   agentId: string; // ElevenLabs agent ID
   voiceId: string;
+  voiceName: string;
   disabled: boolean;
   firstMessage: string;
   systemPrompt: string;
@@ -36,6 +37,10 @@ const AgentSchema = new Schema<IAgent>(
       required: true,
     },
     voiceId: {
+      type: String,
+      required: true,
+    },
+    voiceName: {
       type: String,
       required: true,
     },

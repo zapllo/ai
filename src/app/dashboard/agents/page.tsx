@@ -39,6 +39,7 @@ type Agent = {
   description: string;
   disabled: boolean;
   voice_id: string;
+  voiceName: string;
   usage_minutes: number;
   last_called_at: string | null;
   conversation_config: {
@@ -258,7 +259,7 @@ export default function AgentsPage() {
                           <Volume2 className="h-5 w-5 text-primary" />
                         </div>
                         <div>
-                          <p className="text-sm font-medium">Voice ID: {agent.voice_id.slice(0, 8)}...</p>
+                          <p className="text-sm font-medium">Voice: {agent.voiceName.slice(0, 18)}...</p>
                           {agent.disabled && (
                             <Badge variant="outline" className="text-muted-foreground border-muted-foreground">
                               Disabled
@@ -267,7 +268,7 @@ export default function AgentsPage() {
                         </div>
                       </div>
 
-                      <div className="space-y-4 text-sm">
+                      <div className="space-y-4 text-sm ml-2">
                         <div className="flex items-center gap-2">
                           <Clock className="h-4 w-4 text-muted-foreground" />
                           <span className="text-muted-foreground">
@@ -277,12 +278,12 @@ export default function AgentsPage() {
                           </span>
                         </div>
 
-                        <div className="flex items-center gap-2">
+                        {/* <div className="flex items-center gap-2">
                           <BarChart className="h-4 w-4 text-muted-foreground" />
                           <span className="text-muted-foreground">
                             {agent.usage_minutes.toFixed(1)} minutes used
                           </span>
-                        </div>
+                        </div> */}
                       </div>
                     </CardContent>
 

@@ -104,7 +104,13 @@ export default function CallsPage() {
   const [makingCall, setMakingCall] = useState(false);
   const [dialerValue, setDialerValue] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
-
+  // Add these state variables
+  const [showStartCallDialog, setShowStartCallDialog] = useState(false);
+  const [importSummary, setImportSummary] = useState<{
+    created: number;
+    agentName: string;
+    uploadedContacts: any[];
+  } | null>(null);
   // Fetch agents
   const { data: agentsData } = useSWR<{ agents: any[] }>("/api/agents", fetcher);
   const agents = agentsData?.agents?.filter(a => !a.disabled) || [];
@@ -123,6 +129,9 @@ export default function CallsPage() {
     }
   });
 
+
+
+  // Replace your handleCSVUpload function with this
   const handleCSVUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -133,28 +142,90 @@ export default function CallsPage() {
       return;
     }
 
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("agentId", agentId);
-
     try {
       setUploading(true);
+      console.log("Starting CSV upload - contacts only, no automatic calls");
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("agentId", agentId);
 
       const response = await fetch("/api/calls", {
         method: "PUT",
         body: formData,
       });
 
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to upload CSV");
+      }
+
       const data = await response.json();
+      console.log("CSV upload response:", data);
       setUploadResult(data);
-      refreshCalls();
+
+      // Prepare for confirmation dialog if contacts were processed
+      if (data.uploadedContacts && data.uploadedContacts.length > 0) {
+        const agentName = agents.find(agent => agent.agent_id === agentId)?.name || "Selected agent";
+
+        setImportSummary({
+          created: data.results.created,
+          agentName: agentName,
+          uploadedContacts: data.uploadedContacts
+        });
+
+        setShowStartCallDialog(true);
+      }
+
     } catch (error) {
       console.error("Error uploading CSV:", error);
+      alert(`Error uploading CSV: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setUploading(false);
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
+    }
+  };
+
+  // Add this function to start the calling process
+  const startCallingProcess = async () => {
+    if (!importSummary || !importSummary.uploadedContacts.length) {
+      console.log("No contacts to call");
+      setShowStartCallDialog(false);
+      return;
+    }
+
+    try {
+      console.log("Starting batch call process for", importSummary.uploadedContacts.length, "contacts");
+
+      const startResponse = await fetch("/api/calls/batch", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          agentId: form.getValues("agentId"),
+          contacts: importSummary.uploadedContacts
+        }),
+      });
+
+      if (!startResponse.ok) {
+        const errorData = await startResponse.json();
+        throw new Error(errorData.message || "Failed to start calls");
+      }
+
+      const result = await startResponse.json();
+      console.log("Batch call initiation result:", result);
+
+      alert(`Successfully initiated ${result.initiated || 0} calls. You can monitor progress in the call history.`);
+      refreshCalls();
+    } catch (error) {
+      console.error("Error starting calls:", error);
+      alert(`Error starting calls: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setShowStartCallDialog(false);
+      setImportSummary(null);
     }
   };
   // Within the onMakeCall function, update the phone formatting:
@@ -968,7 +1039,60 @@ export default function CallsPage() {
               </Card>
             </motion.div>
           </div>
+          {/* Confirmation Dialog */}
+          <Dialog
+            open={showStartCallDialog}
+            onOpenChange={(open) => {
+              if (!open) {
+                console.log("Dialog closed without initiating calls");
+                setShowStartCallDialog(false);
+                setImportSummary(null);
+              }
+            }}
+          >
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Start Calling Process</DialogTitle>
+                <DialogDescription>
+                  Your contact import was successful
+                </DialogDescription>
+              </DialogHeader>
 
+              {importSummary && (
+                <div className="py-4">
+                  <div className="flex items-center gap-2 mb-4">
+                    <CheckCircle className="h-5 w-5 text-success" />
+                    <p className="text-lg font-medium">
+                      Successfully imported {importSummary.created} contacts
+                    </p>
+                  </div>
+
+                  <div className="p-4 bg-muted rounded-lg mb-4">
+                    <p className="text-sm mb-2">
+                      These calls will be made using the agent:
+                    </p>
+                    <p className="font-medium">{importSummary.agentName}</p>
+                  </div>
+
+                  <p className="text-sm text-muted-foreground">
+                    No calls have been initiated yet. Would you like to start the calling process now?
+                  </p>
+                </div>
+              )}
+
+              <DialogFooter className="flex justify-between gap-4">
+                <DialogClose asChild>
+                  <Button variant="outline">
+                    Not Now
+                  </Button>
+                </DialogClose>
+                <Button onClick={startCallingProcess}>
+                  <Phone className="h-4 w-4 mr-2" />
+                  Start Calling
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
           {/* Call Stats Section */}
           <motion.div
             className="mt-8"

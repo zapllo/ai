@@ -116,6 +116,8 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+// For bulk uploads via CSV
 // For bulk uploads via CSV
 export async function PUT(request: NextRequest) {
   try {
@@ -151,70 +153,68 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // Store contacts and schedule calls
+    // IMPORTANT: This endpoint now ONLY stores contacts, does NOT initiate any calls
+    console.log("CSV import: Processing contacts only, NO calls will be initiated automatically");
+
+    // Store contacts only, don't schedule calls at all
     await connectDB();
-    const results = [];
+    const results = {
+      created: 0,
+      skipped: 0,
+      failed: 0
+    };
+    const uploadedContacts = [];
 
     for (const record of records) {
-      const name = record.name || record.Name || '';
+      const name = record.name || record.Name || record.contactName || record.ContactName || '';
       const phoneNumber = record.phone || record.Phone || record.phoneNumber || record.PhoneNumber || '';
 
-      if (!phoneNumber) continue;
+      if (!phoneNumber) {
+        results.skipped++;
+        continue;
+      }
+
+      // Clean the phone number
+      const cleanedPhoneNumber = phoneNumber.startsWith('+')
+        ? '+' + phoneNumber.substring(1).replace(/\D/g, '')
+        : phoneNumber.replace(/\D/g, '');
 
       // Check if contact already exists
       let contact = await Contact.findOne({
         userId: userData.userId as string,
-        phoneNumber
+        phoneNumber: cleanedPhoneNumber
       });
 
       // Create contact if it doesn't exist
       if (!contact) {
-        contact = await Contact.create({
-          userId: userData.userId as string,
-          name,
-          phoneNumber,
-          email: record.email || record.Email || '',
-          company: record.company || record.Company || '',
-          notes: record.notes || record.Notes || '',
-          tags: record.tags ? record.tags.split(',').map((tag: string) => tag.trim()) : []
-        });
+        try {
+          contact = await Contact.create({
+            userId: userData.userId as string,
+            name,
+            phoneNumber: cleanedPhoneNumber,
+            email: record.email || record.Email || '',
+            company: record.company || record.Company || '',
+            notes: record.notes || record.Notes || '',
+            tags: record.tags ? record.tags.split(',').map((tag: string) => tag.trim()) : []
+          });
+        } catch (error) {
+          console.error("Error creating contact:", error);
+          results.failed++;
+          continue;
+        }
       }
 
-      // Schedule call
-      try {
-        const result = await initiateCall(
-          userData.userId as string,
-          agentId,
-          phoneNumber,
-          name || 'Customer'
-        );
-
-        results.push({
-          contactId: contact._id,
-          name,
-          phoneNumber,
-          status: 'scheduled',
-          callId: result.id
-        });
-
-        // Update contact's lastContacted field
-        await Contact.findByIdAndUpdate(contact._id, {
-          lastContacted: new Date()
-        });
-      } catch (error: any) {
-        results.push({
-          contactId: contact._id,
-          name,
-          phoneNumber,
-          status: 'failed',
-          error: error.message
-        });
-      }
+      // Store the contact ID for later use
+      uploadedContacts.push(contact._id.toString());
+      results.created++;
     }
 
+    console.log(`CSV Import: Processed ${records.length} contacts. NO calls initiated.`);
+
     return NextResponse.json({
-      message: `Processed ${results.length} contacts`,
-      results
+      message: `Processed ${records.length} contacts from CSV. No calls have been initiated yet.`,
+      results,
+      uploadedContacts
     });
   } catch (error: any) {
     console.error('Error processing CSV:', error);

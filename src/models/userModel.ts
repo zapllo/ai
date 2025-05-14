@@ -8,6 +8,8 @@ export interface IUser extends Document {
   phoneNumber?: string;
   company?: string;
   plan: 'free' | 'starter' | 'pro' | 'enterprise';
+  resetPasswordToken?: string;
+  resetPasswordExpire?: Date;
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -41,7 +43,7 @@ const UserSchema = new Schema<IUser>(
       trim: true,
     },
     company: {
-      type: String, 
+      type: String,
       trim: true,
     },
     plan: {
@@ -49,6 +51,8 @@ const UserSchema = new Schema<IUser>(
       enum: ['free', 'starter', 'pro', 'enterprise'],
       default: 'free',
     },
+    resetPasswordToken: String,
+    resetPasswordExpire: Date,
   },
   { timestamps: true }
 );

@@ -193,18 +193,12 @@ export default function SettingsPage() {
             variants={fadeInUpVariant}
           >
             <Tabs value={settingsTab} onValueChange={setSettingsTab} className="w-full">
-              <TabsList className="grid grid-cols-4 max-w-[600px] mb-6">
+              <TabsList className="grid grid-cols-2 mb-6">
                 <TabsTrigger value="general">
                   <Settings className="h-4 w-4 mr-2" /> General
                 </TabsTrigger>
                 <TabsTrigger value="notifications">
                   <Bell className="h-4 w-4 mr-2" /> Notifications
-                </TabsTrigger>
-                <TabsTrigger value="appearance">
-                  <Palette className="h-4 w-4 mr-2" /> Appearance
-                </TabsTrigger>
-                <TabsTrigger value="voice">
-                  <Volume2 className="h-4 w-4 mr-2" /> Voice
                 </TabsTrigger>
               </TabsList>
 
@@ -344,7 +338,7 @@ export default function SettingsPage() {
                         <CardDescription>
                           Manage your data and exports
                         </CardDescription>
-</CardHeader>
+                      </CardHeader>
                       <CardContent className="space-y-4">
                         <div className="flex items-center justify-between">
                           <div className="space-y-0.5">
@@ -429,27 +423,6 @@ export default function SettingsPage() {
                         />
 
                         <div className="ml-6 space-y-4">
-                          <FormField
-                            control={notificationForm.control}
-                            name="callCompletions"
-                            render={({ field }) => (
-                              <FormItem className="flex items-center justify-between space-y-0 rounded-lg border p-4">
-                                <div className="space-y-0.5">
-                                  <FormLabel>Call Completions</FormLabel>
-                                  <FormDescription>
-                                    Notifications when calls are completed
-                                  </FormDescription>
-                                </div>
-                                <FormControl>
-                                  <Switch
-                                    checked={field.value}
-                                    onCheckedChange={field.onChange}
-                                    disabled={!notificationForm.watch("emailNotifications")}
-                                  />
-                                </FormControl>
-                              </FormItem>
-                            )}
-                          />
 
                           <FormField
                             control={notificationForm.control}
@@ -476,7 +449,7 @@ export default function SettingsPage() {
 
                         <Separator />
 
-                        <FormField
+                        {/* <FormField
                           control={notificationForm.control}
                           name="marketingEmails"
                           render={({ field }) => (
@@ -516,7 +489,7 @@ export default function SettingsPage() {
                               </FormControl>
                             </FormItem>
                           )}
-                        />
+                        /> */}
 
                         <div className="flex items-center justify-between pt-4">
                           {saveSuccess && (
@@ -546,401 +519,7 @@ export default function SettingsPage() {
                 </Card>
               </TabsContent>
 
-              {/* Appearance Settings */}
-              <TabsContent value="appearance">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Palette className="h-5 w-5 text-primary" />
-                      Interface Preferences
-                    </CardTitle>
-                    <CardDescription>
-                      Customize the look and feel of the application
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Form {...appearanceForm}>
-                      <form onSubmit={appearanceForm.handleSubmit(onSaveAppearance)} className="space-y-6">
-                        <FormField
-                          control={appearanceForm.control}
-                          name="theme"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-base font-medium">Theme</FormLabel>
-                              <FormDescription>
-                                Select your preferred color theme
-                              </FormDescription>
-                              <div className="grid grid-cols-3 gap-4 pt-2">
-                                <FormControl>
-                                  <div className="space-y-2">
-                                    <button
-                                      type="button"
-                                      className={cn(
-                                        "w-full rounded-lg border-2 p-4 flex flex-col items-center gap-2",
-                                        field.value === "light"
-                                          ? "border-primary"
-                                          : "border-border"
-                                      )}
-                                      onClick={() => field.onChange("light")}
-                                    >
-                                      <div className="h-16 w-16 rounded-full bg-background flex items-center justify-center border">
-                                        <Sun className="h-8 w-8 text-primary" />
-                                      </div>
-                                      <span className="text-sm font-medium">Light</span>
-                                      {field.value === "light" && (
-                                        <Check className="absolute top-2 right-2 h-4 w-4 text-primary" />
-                                      )}
-                                    </button>
-                                  </div>
-                                </FormControl>
 
-                                <FormControl>
-                                  <div className="space-y-2">
-                                    <button
-                                      type="button"
-                                      className={cn(
-                                        "w-full rounded-lg border-2 p-4 flex flex-col items-center gap-2",
-                                        field.value === "dark"
-                                          ? "border-primary"
-                                          : "border-border"
-                                      )}
-                                      onClick={() => field.onChange("dark")}
-                                    >
-                                      <div className="h-16 w-16 rounded-full bg-background flex items-center justify-center border">
-                                        <Moon className="h-8 w-8 text-primary" />
-                                      </div>
-                                      <span className="text-sm font-medium">Dark</span>
-                                      {field.value === "dark" && (
-                                        <Check className="absolute top-2 right-2 h-4 w-4 text-primary" />
-                                      )}
-                                    </button>
-                                  </div>
-                                </FormControl>
-
-                                <FormControl>
-                                  <div className="space-y-2">
-                                    <button
-                                      type="button"
-                                      className={cn(
-                                        "w-full rounded-lg border-2 p-4 flex flex-col items-center gap-2",
-                                        field.value === "system"
-                                          ? "border-primary"
-                                          : "border-border"
-                                      )}
-                                      onClick={() => field.onChange("system")}
-                                    >
-                                      <div className="h-16 w-16 rounded-full bg-background flex items-center justify-center border">
-                                        <div className="flex">
-                                          <Sun className="h-8 w-8 text-primary" />
-                                          <Moon className="h-8 w-8 text-primary -ml-4" />
-                                        </div>
-                                      </div>
-                                      <span className="text-sm font-medium">System</span>
-                                      {field.value === "system" && (
-                                        <Check className="absolute top-2 right-2 h-4 w-4 text-primary" />
-                                      )}
-                                    </button>
-                                  </div>
-                                </FormControl>
-                              </div>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <Separator />
-
-                        <FormField
-                          control={appearanceForm.control}
-                          name="density"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-base font-medium">Density</FormLabel>
-                              <FormDescription>
-                                Change the density of the user interface
-                              </FormDescription>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select interface density" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  <SelectItem value="compact">Compact</SelectItem>
-                                  <SelectItem value="default">Default</SelectItem>
-                                  <SelectItem value="comfortable">Comfortable</SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={appearanceForm.control}
-                          name="animations"
-                          render={({ field }) => (
-                            <FormItem className="flex items-center justify-between space-y-0 rounded-lg border p-4">
-                              <div className="space-y-0.5">
-                                <FormLabel className="text-base font-medium">Animations</FormLabel>
-                                <FormDescription>
-                                  Enable interface animations and transitions
-                                </FormDescription>
-                              </div>
-                              <FormControl>
-                                <Switch
-                                  checked={field.value}
-                                  onCheckedChange={field.onChange}
-                                />
-                              </FormControl>
-                            </FormItem>
-                          )}
-                        />
-
-                        <div className="flex items-center justify-between pt-4">
-                          {saveSuccess && (
-                            <p className="text-sm text-success flex items-center">
-                              <CheckCircle className="h-4 w-4 mr-1" />
-                              Settings saved successfully
-                            </p>
-                          )}
-                          <Button
-                            type="submit"
-                            className="ml-auto"
-                            disabled={isSaving}
-                          >
-                            {isSaving ? (
-                              <>
-                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                Saving...
-                              </>
-                            ) : (
-                              "Save Changes"
-                            )}
-                          </Button>
-                        </div>
-                      </form>
-                    </Form>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              {/* Voice Settings */}
-              <TabsContent value="voice">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Volume2 className="h-5 w-5 text-primary" />
-                      Voice Call Settings
-                    </CardTitle>
-                    <CardDescription>
-                      Configure default voice preferences and call settings
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Form {...voiceSettingsForm}>
-                      <form onSubmit={voiceSettingsForm.handleSubmit(onSaveVoiceSettings)} className="space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          <FormField
-                            control={voiceSettingsForm.control}
-                            name="defaultVoiceId"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Default Voice</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                  <FormControl>
-                                    <SelectTrigger>
-                                      <SelectValue placeholder="Select a default voice" />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                    <SelectItem value="voice-1">Rachel (Female, US)</SelectItem>
-                                    <SelectItem value="voice-2">Michael (Male, US)</SelectItem>
-                                    <SelectItem value="voice-3">Emma (Female, UK)</SelectItem>
-                                    <SelectItem value="voice-4">John (Male, UK)</SelectItem>
-                                    <SelectItem value="voice-5">Sophie (Female, AU)</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                                <FormDescription>
-                                  The default voice to use when creating new agents
-                                </FormDescription>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          <FormField
-                            control={voiceSettingsForm.control}
-                            name="defaultAgent"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Default Agent</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                  <FormControl>
-                                    <SelectTrigger>
-                                      <SelectValue placeholder="Select a default agent" />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                    <SelectItem value="NONE">No default agent</SelectItem>
-                                    <SelectItem value="agent-1">Sales Assistant</SelectItem>
-                                    <SelectItem value="agent-2">Lead Qualifier</SelectItem>
-                                    <SelectItem value="agent-3">Appointment Scheduler</SelectItem>
-                                    <SelectItem value="agent-4">Customer Support</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                                <FormDescription>
-                                  The default agent to pre-select for new calls
-                                </FormDescription>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-
-                        <FormField
-                          control={voiceSettingsForm.control}
-                          name="speakingRate"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Speaking Rate</FormLabel>
-                              <div className="space-y-4">
-                                <FormControl>
-                                  <div className="grid grid-cols-3 gap-4">
-                                    <button
-                                      type="button"
-                                      className={cn(
-                                        "rounded-lg border-2 p-3 flex flex-col items-center",
-                                        field.value === "slow"
-                                          ? "border-primary"
-                                          : "border-border"
-                                      )}
-                                      onClick={() => field.onChange("slow")}
-                                    >
-                                      <Play className="h-5 w-5 mb-1" />
-                                      <span className="text-sm font-medium">Slow</span>
-                                    </button>
-                                    <button
-                                      type="button"
-                                      className={cn(
-                                        "rounded-lg border-2 p-3 flex flex-col items-center",
-                                        field.value === "medium"
-                                          ? "border-primary"
-                                          : "border-border"
-                                      )}
-                                      onClick={() => field.onChange("medium")}
-                                    >
-                                      <Play className="h-5 w-5 mb-1" />
-                                      <span className="text-sm font-medium">Medium</span>
-                                    </button>
-                                    <button
-                                      type="button"
-                                      className={cn(
-                                        "rounded-lg border-2 p-3 flex flex-col items-center",
-                                        field.value === "fast"
-                                          ? "border-primary"
-                                          : "border-border"
-                                      )}
-                                      onClick={() => field.onChange("fast")}
-                                    >
-                                      <Play className="h-5 w-5 mb-1" />
-                                      <span className="text-sm font-medium">Fast</span>
-                                    </button>
-                                  </div>
-                                </FormControl>
-                              </div>
-                              <FormDescription>
-                                Default speaking rate for AI voice agents
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={voiceSettingsForm.control}
-                          name="defaultMessage"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Default Introduction</FormLabel>
-                              <FormControl>
-                                <Textarea
-                                  className="min-h-[120px]"
-                                  placeholder="Hello, this is an automated call from {company}. I'm calling about..."
-                                  {...field}
-                                />
-                              </FormControl>
-                              <FormDescription>
-                                Default introduction message that agents will use. Use {'{company}'} as placeholder for company name.
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <Separator />
-
-                        <div className="space-y-4">
-                          <h3 className="text-base font-medium">Other Voice Settings</h3>
-
-                          <div className="flex items-center justify-between border rounded-lg p-4">
-                            <div className="space-y-0.5">
-                              <Label>Call Recording</Label>
-                              <p className="text-sm text-muted-foreground">
-                                Automatically record all AI voice calls
-                              </p>
-                            </div>
-                            <Switch defaultChecked />
-                          </div>
-
-                          <div className="flex items-center justify-between border rounded-lg p-4">
-                            <div className="space-y-0.5">
-                              <Label>Call Transcription</Label>
-                              <p className="text-sm text-muted-foreground">
-                                Generate text transcripts of calls
-                              </p>
-                            </div>
-                            <Switch defaultChecked />
-                          </div>
-
-                          <div className="flex items-center justify-between border rounded-lg p-4">
-                            <div className="space-y-0.5">
-                              <Label>Voice Quality</Label>
-                              <p className="text-sm text-muted-foreground">
-                                Use higher quality voice synthesis (uses more credits)
-                              </p>
-                            </div>
-                            <Switch defaultChecked />
-                          </div>
-                        </div>
-
-                        <div className="flex items-center justify-between pt-4">
-                          {saveSuccess && (
-                            <p className="text-sm text-success flex items-center">
-                              <CheckCircle className="h-4 w-4 mr-1" />
-                              Settings saved successfully
-                            </p>
-                          )}
-                          <Button
-                            type="submit"
-                            className="ml-auto"
-                            disabled={isSaving}
-                          >
-                            {isSaving ? (
-                              <>
-                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                Saving...
-                              </>
-                            ) : (
-                              "Save Changes"
-                            )}
-                          </Button>
-                        </div>
-                      </form>
-                    </Form>
-                  </CardContent>
-                </Card>
-              </TabsContent>
             </Tabs>
           </motion.div>
         </div>

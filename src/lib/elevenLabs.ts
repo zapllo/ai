@@ -23,6 +23,17 @@ export async function createAgent(data: {
       first_message = '',
       system_prompt = '',
     } = data;
+    // Get voice details first
+    const voiceRes = await fetch(
+      `https://api.elevenlabs.io/v1/voices/${voice_id}`,
+      {
+        headers: {
+          'xi-api-key': ELEVENLABS_API_KEY!,
+        },
+      }
+    );
+    const voiceData = await voiceRes.json();
+    const voiceName = voiceData.name; // Get the voice name
 
     /* ───────── call ElevenLabs ───────── */
     const res = await fetch(
@@ -36,8 +47,10 @@ export async function createAgent(data: {
         body: JSON.stringify({
           name,
           description,
-          voice_id,                    // <-- must be top-level
           conversation_config: {
+            tts: {
+              voice_id: voice_id  // <-- voice_id should be here
+            },
             agent: {
               first_message,
               prompt: { prompt: system_prompt },
@@ -63,6 +76,7 @@ export async function createAgent(data: {
       description,
       agentId: agent_id,
       voiceId: voice_id,
+      voiceName: voiceName, // Save the voice name
       firstMessage: first_message,
       systemPrompt: system_prompt,
       usageMinutes: 0,

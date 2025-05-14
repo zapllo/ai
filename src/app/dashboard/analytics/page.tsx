@@ -66,10 +66,10 @@ export default function AnalyticsPage() {
     successRate: 0,
     contactsReached: 0,
     callsPercentChange: 0,
-    callOutcomes: [],
-    callDuration: [],
-    dailyCallData: [],
-    monthlyCallData: []
+    callOutcomes: [] as { name: string, value: number }[],
+    callDuration: [] as { name: string, value: number }[],
+    dailyCallData: [] as any[],
+    monthlyCallData: [] as any[]
   });
 
   // Calculate start date based on timeRange
@@ -136,7 +136,7 @@ export default function AnalyticsPage() {
   };
 
   // Process data and calculate statistics
-  const processData = (calls, contacts, agents) => {
+  const processData = (calls: any[], contacts: any[], agents: any[]) => {
     // Default empty arrays if no data
     calls = calls || [];
     contacts = contacts || [];
@@ -230,7 +230,7 @@ export default function AnalyticsPage() {
   };
 
   // Generate daily call data from actual calls
-  const generateDailyCallData = (calls) => {
+  const generateDailyCallData = (calls: any[]) => {
     const today = new Date();
     const days = eachDayOfInterval({
       start: subDays(today, 30),
@@ -246,7 +246,7 @@ export default function AnalyticsPage() {
     }));
 
     // Aggregate call data by day
-    calls.forEach(call => {
+    calls.forEach((call: any) => {
       if (call.createdAt) {
         const callDate = new Date(call.createdAt);
 
@@ -266,7 +266,7 @@ export default function AnalyticsPage() {
   };
 
   // Generate monthly call data from actual calls
-  const generateMonthlyCallData = (calls) => {
+  const generateMonthlyCallData = (calls: any[]) => {
     const monthlyData = Array.from({ length: 12 }, (_, i) => ({
       month: format(new Date(2023, i, 1), "MMM"),
       monthIndex: i,
@@ -275,7 +275,7 @@ export default function AnalyticsPage() {
     }));
 
     // Aggregate call data by month
-    calls.forEach(call => {
+    calls.forEach((call: any) => {
       if (call.createdAt) {
         const callDate = new Date(call.createdAt);
 
@@ -373,7 +373,7 @@ export default function AnalyticsPage() {
 
               <div className="flex flex-wrap gap-3">
                 <Select value={timeRange} onValueChange={setTimeRange}>
-                  <SelectTrigger className="w-[140px]">
+                  <SelectTrigger className="">
                     <Calendar className="h-4 w-4 mr-2" />
                     <SelectValue placeholder="Select period" />
                   </SelectTrigger>
@@ -712,14 +712,14 @@ export default function AnalyticsPage() {
                       <div className="space-y-4">
                         {agents.map(agent => {
                           // Calculate success rate for this agent
-                          const agentCalls = calls.filter(call => call.agentId === agent.agent_id);
-                          const successfulCalls = agentCalls.filter(call => call.status === "completed");
+                          const agentCalls = calls.filter((call: any) => call.agentId === agent.id);
+                          const successfulCalls = agentCalls.filter((call: any) => call.status === "completed");
                           const successRate = agentCalls.length > 0
                             ? (successfulCalls.length / agentCalls.length) * 100
                             : 0;
 
                           return (
-                            <div key={agent.agent_id}>
+                            <div key={agent.id}>
                               <div className="flex justify-between mb-1">
                                 <span className="text-sm font-medium">{agent.name}</span>
                                 <span className="text-sm">{successRate.toFixed(0)}%</span>

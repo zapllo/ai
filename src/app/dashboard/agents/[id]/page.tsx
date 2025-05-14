@@ -267,7 +267,10 @@ export default function AgentDetailPage({ params }: { params: { id: string } }) 
 
             {agent.description && (
               <Card className="mb-6">
-                <CardContent className="pt-6">
+                <CardHeader>
+                  <h1 className='text-xl font-bold'>Agent Description</h1>
+                </CardHeader>
+                <CardContent className="">
                   <p className="text-muted-foreground">{agent.description}</p>
                 </CardContent>
               </Card>
@@ -321,7 +324,7 @@ export default function AgentDetailPage({ params }: { params: { id: string } }) 
                       <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
                         <Volume2 className="h-4 w-4 text-primary" />
                       </div>
-                      <div className="text-lg font-semibold truncate">{agent.voice_id}</div>
+                      <div className="text-lg font-semibold truncate">{agent.voiceName}</div>
                     </CardContent>
                   </Card>
                 </div>
@@ -376,7 +379,7 @@ export default function AgentDetailPage({ params }: { params: { id: string } }) 
                             <Badge
                               variant={
                                 call.status === "completed" ? "default" :
-                                call.status === "failed" ? "destructive" : "outline"
+                                  call.status === "failed" ? "destructive" : "outline"
                               }
                             >
                               {call.status}

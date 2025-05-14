@@ -7,8 +7,32 @@ import { AuthProvider } from '@/contexts/AuthContext';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Zapllo AI - Conversational AI Voice Agents',
-  description: 'Create and deploy AI voice agents for natural customer conversations',
+  title: 'Zapllo Voice | Build Enterprise Grade Custom AI Agents',
+  description: 'Get started with building custom Conversational AI Agents powered by Zapllo\'s No/Low Code Builder',
+  openGraph: {
+    type: 'website',
+    title: 'Build Enterprise Grade Custom AI Agents | Zapllo',
+    description: 'Get started with building custom Conversational AI Agents powered by Zapllo\'s No/Low Code Builder',
+    images: [
+      {
+        url: '/og.png',
+        width: 1200,
+        height: 630,
+        alt: 'Zapllo AI Agents',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Build Enterprise Grade Custom AI Agents | Zapllo',
+    description: 'Get started with building custom Conversational AI Agents powered by Zapllo\'s No/Low Code Builder',
+    images: ['/og.png'],
+  },
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon-16x16.png',
+    apple: '/apple-touch-icon.png',
+  },
 };
 
 export default function RootLayout({

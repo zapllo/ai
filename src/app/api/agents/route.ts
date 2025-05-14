@@ -26,6 +26,7 @@ export async function GET(request: NextRequest) {
       description: a.description,
       disabled: a.disabled,
       voice_id: a.voiceId,
+      voiceName: a.voiceName,
       usage_minutes: a.usageMinutes,
       last_called_at: a.lastCalledAt,
       conversation_config: {
@@ -70,16 +71,13 @@ export async function POST(request: NextRequest) {
       userId: typeof userData === "object" ? userData.userId : userData,
       name: body.name,
       description: body.description ?? "",
-      voice_id: body.voice_id,
-      first_message:
-        body.first_message ?? body.conversation_config?.first_message ?? "",
-      system_prompt:
-        body.system_prompt ?? body.conversation_config?.system_prompt ?? "",
-      // leave conversation_config undefined – the helper can
-      // construct it from the two fields above
+      voice_id: body.voice_id ?? "", // Check in conversation_config.tts if not at top level
+      first_message: body.first_message ?? body.conversation_config?.first_message ?? "",
+      system_prompt: body.system_prompt ?? body.conversation_config?.system_prompt ?? "",
     };
 
     const agent = await createAgent(agentData);
+
     return NextResponse.json(agent);
   } catch (err: any) {
     console.error("Error creating agent:", err);

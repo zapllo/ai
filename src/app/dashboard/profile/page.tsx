@@ -248,13 +248,13 @@ export default function ProfilePage() {
                               <p className="text-sm text-muted-foreground">
                                 {user?.email}
                               </p>
-                              <Button
+                              {/* <Button
                                 variant="link"
                                 className="h-auto p-0 text-sm mt-1"
                                 disabled
                               >
                                 Change profile picture
-                              </Button>
+                              </Button> */}
                             </div>
                           </div>
 
@@ -527,7 +527,7 @@ export default function ProfilePage() {
                   </Card>
 
                   <div className="flex flex-col gap-6">
-                    <Card>
+                    {/* <Card>
                       <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                           <Shield className="h-5 w-5 text-primary" />
@@ -578,7 +578,7 @@ export default function ProfilePage() {
                           </Button>
                         </div>
                       </CardContent>
-                    </Card>
+                    </Card> */}
 
                     <Card>
                       <CardHeader>
