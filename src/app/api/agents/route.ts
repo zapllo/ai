@@ -56,10 +56,13 @@ export async function POST(request: NextRequest) {
       userId: typeof userData === 'object' ? userData.userId : userData,
       name: body.name,
       description: body.description || "",
-      voice_id: body.voice_id, // Make sure this matches what your frontend sends
-      first_message: body.first_message || body.conversation_config?.first_message, // Handle different possible formats
-      system_prompt: body.system_prompt || body.conversation_config?.system_prompt
+      voice_id: body.voice_id,
+      conversation_config: {
+        first_message: body.first_message || body.conversation_config?.first_message,
+        system_prompt: body.system_prompt || body.conversation_config?.system_prompt
+      }
     };
+
 
     const agent = await createAgent(agentData);
 
