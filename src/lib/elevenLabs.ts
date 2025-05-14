@@ -23,10 +23,15 @@ export async function createAgent(data: any) {
         name: data.name,
         voice_id: voiceId,
         conversation_config: {
-          first_message: firstMessage,
-          system_prompt: systemPrompt,
-        },
+          agent: {
+            first_message: firstMessage,
+            prompt: {
+              prompt: systemPrompt,
+            }
+          }
+        }
       }),
+
     });
 
     console.log("ElevenLabs createAgent request:", {

@@ -1,77 +1,91 @@
-import { NextRequest, NextResponse } from 'next/server';
-import connectDB from '@/lib/db';
-import Agent from '@/models/agentModel';
-import { getUserFromRequest } from '@/lib/jwt';
-import { createAgent } from '@/lib/elevenLabs';
+import { NextRequest, NextResponse } from "next/server";
+import connectDB from "@/lib/db";
+import Agent from "@/models/agentModel";
+import { getUserFromRequest } from "@/lib/jwt";
+import { createAgent } from "@/lib/elevenLabs";
+
+/* ───────────────────────── GET ───────────────────────── */
 
 export async function GET(request: NextRequest) {
   try {
     const userData = await getUserFromRequest(request);
     if (!userData) {
-      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
     await connectDB();
 
-    // Get all agents for the user
-    const agents = await Agent.find({ userId: typeof userData === 'object' ? userData.userId : userData });
+    const agents = await Agent.find({
+      userId: typeof userData === "object" ? userData.userId : userData,
+    });
 
-    // Format response for the client
-    const formattedAgents = agents.map(agent => ({
-      agent_id: agent.agentId,
-      name: agent.name,
-      description: agent.description,
-      disabled: agent.disabled,
-      voice_id: agent.voiceId,
-      usage_minutes: agent.usageMinutes,
-      last_called_at: agent.lastCalledAt,
+    /** What the dashboard needs */
+    const formatted = agents.map((a) => ({
+      agent_id: a.agentId,
+      name: a.name,
+      description: a.description,
+      disabled: a.disabled,
+      voice_id: a.voiceId,
+      usage_minutes: a.usageMinutes,
+      last_called_at: a.lastCalledAt,
       conversation_config: {
-        first_message: agent.firstMessage,
-        system_prompt: agent.systemPrompt,
+        // keep the *flat* shape for the frontend;
+        // the helper will nest them correctly when it
+        // hits ElevenLabs later.
+        first_message: a.firstMessage,
+        system_prompt: a.systemPrompt,
         enable_summary: true,
-      }
+      },
     }));
 
-    return NextResponse.json({ agents: formattedAgents });
-  } catch (error: any) {
-    console.error('Error fetching agents:', error);
+    return NextResponse.json({ agents: formatted });
+  } catch (err: any) {
+    console.error("Error fetching agents:", err);
     return NextResponse.json(
-      { message: 'Failed to fetch agents', error: error.message },
-      { status: 500 }
+      { message: "Failed to fetch agents", error: err.message },
+      { status: 500 },
     );
   }
 }
+
+/* ───────────────────────── POST ───────────────────────── */
 
 export async function POST(request: NextRequest) {
   try {
     const userData = await getUserFromRequest(request);
     if (!userData) {
-      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
+    /* what the UI sent */
     const body = await request.json();
 
-    // Map the request body fields to what elevenLabs.ts expects
+    /* map into the flavour that `createAgent()` expects                *
+     * NOTE:  we send `first_message` & `system_prompt` at the top      *
+     *        level (or inside `conversation_config`) – the helper      *
+     *        will transform them into the deeper                       *
+     *        conversation_config.agent.prompt structure when it calls  *
+     *        the ElevenLabs endpoint.                                  */
     const agentData = {
-      userId: typeof userData === 'object' ? userData.userId : userData,
+      userId: typeof userData === "object" ? userData.userId : userData,
       name: body.name,
-      description: body.description || "",
+      description: body.description ?? "",
       voice_id: body.voice_id,
-      conversation_config: {
-        first_message: body.first_message || body.conversation_config?.first_message,
-        system_prompt: body.system_prompt || body.conversation_config?.system_prompt
-      }
+      first_message:
+        body.first_message ?? body.conversation_config?.first_message ?? "",
+      system_prompt:
+        body.system_prompt ?? body.conversation_config?.system_prompt ?? "",
+      // leave conversation_config undefined – the helper can
+      // construct it from the two fields above
     };
 
-
     const agent = await createAgent(agentData);
-
     return NextResponse.json(agent);
-  } catch (error: any) {
-    console.error('Error creating agent:', error);
+  } catch (err: any) {
+    console.error("Error creating agent:", err);
     return NextResponse.json(
-      { message: 'Failed to create agent', error: error.message },
-      { status: 500 }
+      { message: "Failed to create agent", error: err.message },
+      { status: 500 },
     );
   }
 }
