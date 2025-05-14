@@ -109,7 +109,7 @@ type Call = {
   cost?: number;
   callType?: string;
   createdAt: string;
-  elevenLabsCallSid?: string;
+  conversationId?: string;
 };
 
 export default function CallHistoryPage() {
@@ -702,10 +702,10 @@ export default function CallHistoryPage() {
                 </TabsContent>
 
                 <TabsContent value="recording">
-                  {selectedCall.elevenLabsCallSid ? (
+                  {selectedCall.conversationId ? (
                     <audio controls className="w-full mt-2">
                       <source src={`/api/audio/${encodeURIComponent(
-                        selectedCall.elevenLabsConversationId,
+                        selectedCall.conversationId,
                       )}`} type="audio/mpeg" />
                       Your browser does not support the audio element.
                     </audio>
