@@ -8,7 +8,12 @@ export interface IUser extends Document {
   phoneNumber?: string;
   company?: string;
   plan: 'free' | 'starter' | 'pro' | 'enterprise';
-  resetPasswordToken?: string;
+  walletBalance: number;
+  minutesUsed: number;
+  totalMinutes: number;
+  agentsAllowed: number;
+  extraMinuteRate?: number;
+  resetPasswordToken?: string
   resetPasswordExpire?: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -46,9 +51,29 @@ const UserSchema = new Schema<IUser>(
       type: String,
       trim: true,
     },
+     walletBalance: {
+      type: Number,
+      default: 0, // Amount in paise (₹0)
+    },
+    minutesUsed: {
+      type: Number,
+      default: 0,
+    },
+    totalMinutes: {
+      type: Number,
+      default: 300, // Default for starter plan
+    },
+    agentsAllowed: {
+      type: Number,
+      default: 1, // Default for starter plan
+    },
+    extraMinuteRate: {
+      type: Number,
+      default: 600, // ₹6.00 in paise, null for starter plan
+    },
     plan: {
       type: String,
-      enum: ['free', 'starter', 'pro', 'enterprise'],
+      enum: ['free', 'starter', 'growth', 'pro', 'enterprise'],
       default: 'free',
     },
     resetPasswordToken: String,

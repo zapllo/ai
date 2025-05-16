@@ -157,6 +157,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true });
   }
 
+  // Update call details
   call.status       = status === "done" ? "completed" : "failed";
   call.duration     = call_duration_secs;
   call.cost         = cost / 100;                 // paise/cents → rupees/dollars
@@ -170,6 +171,34 @@ export async function POST(req: NextRequest) {
   call.outcome        = outcome;  // Add the analyzed outcome
 
   await call.save();
+
+  /** 6 ▸ Update user usage based on call duration */
+  if (status === "done" && call_duration_secs > 0) {
+    try {
+      // Convert seconds to minutes, rounding up to nearest minute
+      const minutesUsed = Math.ceil(call_duration_secs / 60);
+
+      // Get the user ID from the call
+      const userId = call.userId.toString();
+
+      // Update the user's usage stats
+      const usageResult = await updateUserUsage(userId, minutesUsed);
+
+      if (!usageResult.success) {
+        console.error("Failed to update user usage:", usageResult.message);
+      } else {
+        console.log("Updated user usage:", {
+          userId,
+          minutesUsed,
+          minutesFromPlan: usageResult.minutesFromPlan,
+          minutesFromWallet: usageResult.minutesFromWallet,
+          walletCost: usageResult.walletCost / 100, // Convert from paise to rupees for logging
+        });
+      }
+    } catch (error) {
+      console.error("Error updating user usage for call:", call_sid, error);
+    }
+  }
 
   return NextResponse.json({ ok: true });
 }

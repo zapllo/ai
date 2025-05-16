@@ -53,6 +53,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
+import { WalletBalance } from "@/components/billing/wallet-balance";
+import { PlanCard } from "@/components/billing/plan-card";
 
 // Profile form schema
 const profileSchema = z.object({
@@ -100,6 +103,88 @@ export default function ProfilePage() {
       confirmPassword: "",
     },
   });
+
+  // Update the plans data in your component
+  const plans = [
+    {
+      id: "starter",
+      name: "Starter",
+      price: 2499,
+      minutes: 300,
+      agents: 1,
+      extraMinuteRate: null, // No extra minutes for starter
+      features: [
+        "300 minutes included",
+        "1 AI agent",
+        "Basic voice selection",
+        "Standard support",
+      ],
+      popular: false,
+    },
+    {
+      id: "growth",
+      name: "Growth",
+      price: 5999,
+      minutes: 800,
+      agents: 3,
+      extraMinuteRate: 550, // ₹5.50 per minute
+      features: [
+        "800 minutes included",
+        "3 AI agents",
+        "Standard voice selection",
+        "Priority email support",
+        "Purchase Extra Minutes",
+      ],
+      popular: true,
+    },
+    {
+      id: "pro",
+      name: "Pro",
+      price: 11999,
+      minutes: 1800,
+      agents: 7,
+      extraMinuteRate: 500, // ₹5.00 per minute
+      features: [
+        "1,800 minutes included",
+        "7 AI agents",
+        "Premium voice selection",
+        "Priority support",
+        "Team collaboration",
+        "Purchase Extra Minutes",
+      ],
+      popular: false,
+    },
+    {
+      id: "enterprise",
+      name: "Enterprise",
+      price: null, // Custom pricing
+      minutes: "5,000+",
+      agents: "15+",
+      extraMinuteRate: 450, // ₹4.50 per minute
+      features: [
+        "5,000+ minutes included",
+        "15+ AI agents",
+        "All premium voices",
+        "Dedicated account manager",
+        "Custom integrations",
+        "Purchase Extra Minutes",
+      ],
+      popular: false,
+    },
+  ];
+
+  // Inside your component, add the following handler
+  const handlePlanSelect = (planId: string) => {
+    if (planId === 'enterprise') {
+      // Redirect to contact sales or open a dialog
+      // For now, just show a toast
+      toast("Enterprise Plan Seclected");
+      return;
+    }
+
+    // For other plans, redirect to upgrade page or handle payment
+    router.push(`/dashboard/billing?upgrade=${planId}`);
+  };
 
   const onUpdateProfile = async (data: z.infer<typeof profileSchema>) => {
     try {
@@ -327,7 +412,7 @@ export default function ProfilePage() {
                               )}
                             />
                           </div>
-<div className="flex items-center justify-between pt-2">
+                          <div className="flex items-center justify-between pt-2">
                             {updateSuccess && (
                               <p className="text-sm text-success flex items-center">
                                 <CheckCircle className="h-4 w-4 mr-1" />
@@ -378,8 +463,8 @@ export default function ProfilePage() {
                             {user?.plan === 'pro'
                               ? "Unlimited calls, multiple agents, premium voices"
                               : user?.plan === 'starter'
-                              ? "Up to 200 calls/month, 5 agents, standard voices"
-                              : "Up to 20 calls/month, 1 agent, basic voices"}
+                                ? "Up to 200 calls/month, 5 agents, standard voices"
+                                : "Up to 20 calls/month, 1 agent, basic voices"}
                           </p>
                         </div>
 
@@ -618,76 +703,7 @@ export default function ProfilePage() {
 
               <TabsContent value="billing">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <CreditCard className="h-5 w-5 text-primary" />
-                        Billing Information
-                      </CardTitle>
-                      <CardDescription>
-                        Manage your subscription and payment methods
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-6">
-                        <div>
-                          <h3 className="font-medium mb-2">Current Plan</h3>
-                          <div className="flex justify-between items-center p-4 rounded-lg bg-muted">
-                            <div>
-                              <p className="font-medium">{user?.plan?.charAt(0).toUpperCase() + user?.plan?.slice(1) || "Free"} Plan</p>
-                              <p className="text-sm text-muted-foreground">
-                                {user?.plan === 'free' ? 'Free' : user?.plan === 'starter' ? '$19/month' : '$49/month'}
-                              </p>
-                            </div>
-                            <Badge variant="outline" className="text-xs uppercase">Active</Badge>
-                          </div>
-                        </div>
-
-                        <div>
-                          <h3 className="font-medium mb-2">Payment Method</h3>
-                          {user?.plan === 'free' ? (
-                            <p className="text-sm text-muted-foreground">
-                              No payment method on file
-                            </p>
-                          ) : (
-                            <div className="flex items-center gap-3 p-4 rounded-lg border">
-                              <div className="h-10 w-14 bg-muted rounded flex items-center justify-center">
-                                <CreditCard className="h-6 w-6 text-muted-foreground" />
-                              </div>
-                              <div>
-                                <p className="font-medium">•••• •••• •••• 4242</p>
-                                <p className="text-xs text-muted-foreground">Expires 12/25</p>
-                              </div>
-                              <Button variant="ghost" size="sm" className="ml-auto">
-                                Edit
-                              </Button>
-                            </div>
-                          )}
-                        </div>
-
-                        <div>
-                          <h3 className="font-medium mb-2">Billing Address</h3>
-                          {user?.plan === 'free' ? (
-                            <p className="text-sm text-muted-foreground">
-                              No billing address on file
-                            </p>
-                          ) : (
-                            <div className="text-sm">
-                              <p>John Doe</p>
-                              <p>123 Main St</p>
-                              <p>New York, NY 10001</p>
-                              <p>United States</p>
-                              <Button variant="link" className="p-0 h-auto text-xs mt-1">
-                                Edit
-                              </Button>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <div className="flex flex-col gap-6">
+                  <div className="md:col-span-2">
                     <Card>
                       <CardHeader>
                         <CardTitle>Subscription Plans</CardTitle>
@@ -695,96 +711,46 @@ export default function ProfilePage() {
                           Choose the right plan for your needs
                         </CardDescription>
                       </CardHeader>
-                      <CardContent className="space-y-4">
-                        <div className={cn(
-                          "border rounded-lg p-4 transition-colors",
-                          user?.plan === 'free' ? "border-primary bg-primary/5" : ""
-                        )}>
-                          <div className="flex justify-between items-start mb-2">
-                            <div>
-                              <h3 className="font-medium">Free Plan</h3>
-                              <p className="text-sm text-muted-foreground">$0/month</p>
-                            </div>
-                            {user?.plan === 'free' ? (
-                              <Badge>Current</Badge>
-                            ) : (
-                              <Button variant="outline" size="sm" disabled>Downgrade</Button>
-                            )}
-                          </div>
-                          <ul className="text-sm space-y-1 text-muted-foreground">
-                            <li>• Up to 20 calls per month</li>
-                            <li>• 1 AI agent</li>
-                            <li>• Basic voice selection</li>
-                            <li>• Limited analytics</li>
-                          </ul>
-                        </div>
-
-                        <div className={cn(
-                          "border rounded-lg p-4 transition-colors",
-                          user?.plan === 'starter' ? "border-primary bg-primary/5" : ""
-                        )}>
-                          <div className="flex justify-between items-start mb-2">
-                            <div>
-                              <h3 className="font-medium">Starter Plan</h3>
-                              <p className="text-sm text-muted-foreground">$19/month</p>
-                            </div>
-                            {user?.plan === 'starter' ? (
-                              <Badge>Current</Badge>
-                            ) : user?.plan === 'free' ? (
-                              <Button variant="outline" size="sm">Upgrade</Button>
-                            ) : (
-                              <Button variant="outline" size="sm" disabled>Downgrade</Button>
-                            )}
-                          </div>
-                          <ul className="text-sm space-y-1 text-muted-foreground">
-                            <li>• Up to 200 calls per month</li>
-                            <li>• 5 AI agents</li>
-                            <li>• Standard voice selection</li>
-                            <li>• Full analytics</li>
-                            <li>• Email support</li>
-                          </ul>
-                        </div>
-
-                        <div className={cn(
-                          "border rounded-lg p-4 transition-colors",
-                          user?.plan === 'pro' ? "border-primary bg-primary/5" : ""
-                        )}>
-                          <div className="flex justify-between items-start mb-2">
-                            <div>
-                              <h3 className="font-medium">Pro Plan</h3>
-                              <p className="text-sm text-muted-foreground">$49/month</p>
-                            </div>
-                            {user?.plan === 'pro' ? (
-                              <Badge>Current</Badge>
-                            ) : (
-                              <Button variant="outline" size="sm">Upgrade</Button>
-                            )}
-                          </div>
-                          <ul className="text-sm space-y-1 text-muted-foreground">
-                            <li>• Unlimited calls</li>
-                            <li>• Unlimited AI agents</li>
-                            <li>• Premium voice selection</li>
-                            <li>• Advanced analytics</li>
-                            <li>• Priority support</li>
-                            <li>• Team collaboration</li>
-                          </ul>
+                      <CardContent className="p-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                          {plans.map((plan) => (
+                            <PlanCard
+                              key={plan.id}
+                              id={plan.id}
+                              name={plan.name}
+                              price={plan.price}
+                              minutes={plan.minutes}
+                              agents={plan.agents}
+                              extraMinuteRate={plan.extraMinuteRate}
+                              features={plan.features}
+                              isCurrent={plan.id === user?.plan}
+                              isPopular={plan.popular}
+                              onSelectPlan={handlePlanSelect}
+                            />
+                          ))}
                         </div>
                       </CardContent>
-                      <CardFooter>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="gap-2 mx-auto"
-                          disabled
-                        >
-                          <ExternalLink className="h-4 w-4" />
-                          View Enterprise options
-                        </Button>
+                      <CardFooter className="border-t bg-muted/30 flex justify-center">
+                        <p className="text-sm text-muted-foreground">
+                          Need a custom solution?{" "}
+                          <Button variant="link" className="p-0 h-auto">Contact our sales team</Button>
+                        </p>
                       </CardFooter>
                     </Card>
                   </div>
+
+                  {/* Add wallet balance */}
+                  <WalletBalance
+                    walletBalance={user?.walletBalance || 0}
+                    minutesUsed={user?.minutesUsed || 0}
+                    totalMinutes={user?.totalMinutes || 0}
+                    plan={user?.plan || 'starter'}
+                    extraMinuteRate={user?.extraMinuteRate}
+                  />
                 </div>
               </TabsContent>
+
+
             </Tabs>
           </motion.div>
         </div>

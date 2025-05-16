@@ -55,7 +55,7 @@ import {
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import { PhoneCall, Upload, Phone, User, CalendarClock, Clock, Download, MoreHorizontal, PlayCircle, AlertCircle, CheckCircle, XCircle, Loader2, Mic, VolumeX, Plus, X, FileText, ChevronRight, HelpCircle, Info } from "lucide-react";
+import { PhoneCall, Upload, Phone, User, CalendarClock, Clock, Download, MoreHorizontal, PlayCircle, AlertCircle, CheckCircle, XCircle, Loader2, Mic, VolumeX, Plus, X, FileText, ChevronRight, HelpCircle, Info, LayoutGrid } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
@@ -83,6 +83,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const fetcher = (url: string) => fetch(url).then(r => r.json());
 
@@ -104,8 +105,10 @@ export default function CallsPage() {
   const [makingCall, setMakingCall] = useState(false);
   const [dialerValue, setDialerValue] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
   // Add these state variables
   const [showStartCallDialog, setShowStartCallDialog] = useState(false);
+  const [showImportDialog, setShowImportDialog] = useState(false);
   const [importSummary, setImportSummary] = useState<{
     created: number;
     agentName: string;
@@ -131,7 +134,6 @@ export default function CallsPage() {
 
 
 
-  // Replace your handleCSVUpload function with this
   const handleCSVUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -144,7 +146,7 @@ export default function CallsPage() {
 
     try {
       setUploading(true);
-      console.log("Starting CSV upload - contacts only, no automatic calls");
+      console.log("Starting CSV upload - processing contacts");
 
       const formData = new FormData();
       formData.append("file", file);
@@ -167,6 +169,7 @@ export default function CallsPage() {
       // Prepare for confirmation dialog if contacts were processed
       if (data.uploadedContacts && data.uploadedContacts.length > 0) {
         const agentName = agents.find(agent => agent.agent_id === agentId)?.name || "Selected agent";
+        console.log("Setting import summary and showing dialog");
 
         setImportSummary({
           created: data.results.created,
@@ -174,7 +177,12 @@ export default function CallsPage() {
           uploadedContacts: data.uploadedContacts
         });
 
-        setShowStartCallDialog(true);
+        // Force re-render by setting a timeout
+        setTimeout(() => {
+          setShowImportDialog(true);
+        }, 100);
+      } else {
+        console.log("No contacts were uploaded or data is missing uploadedContacts array");
       }
 
     } catch (error) {
@@ -188,11 +196,12 @@ export default function CallsPage() {
     }
   };
 
+
   // Add this function to start the calling process
   const startCallingProcess = async () => {
     if (!importSummary || !importSummary.uploadedContacts.length) {
       console.log("No contacts to call");
-      setShowStartCallDialog(false);
+      setShowImportDialog(false);
       return;
     }
 
@@ -224,7 +233,7 @@ export default function CallsPage() {
       console.error("Error starting calls:", error);
       alert(`Error starting calls: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
-      setShowStartCallDialog(false);
+      setShowImportDialog(false);
       setImportSummary(null);
     }
   };
@@ -403,13 +412,23 @@ export default function CallsPage() {
                 <TabsContent value="dialer">
                   <Card>
                     <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Phone className="h-5 w-5 text-primary" />
-                        AI Voice Dialer
-                      </CardTitle>
-                      <CardDescription>
-                        Select an agent and enter contact details to initiate a voice call
-                      </CardDescription>
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <CardTitle className="flex items-center gap-2">
+                            <Phone className="h-5 w-5 text-primary" />
+                            AI Voice Dialer
+                          </CardTitle>
+                          <CardDescription>
+                            Select an agent and enter contact details to initiate a voice call
+                          </CardDescription>
+                        </div>
+                        <Link href="/dashboard/campaigns">
+                          <Button variant="outline" size="sm">
+                            <LayoutGrid className="h-4 w-4 mr-2" />
+                            Campaign Manager
+                          </Button>
+                        </Link>
+                      </div>
                     </CardHeader>
                     <CardContent>
                       <Form {...form}>
@@ -767,8 +786,18 @@ export default function CallsPage() {
                                   Download Template
                                 </a>
                               </Button>
-                            </div>
 
+                            </div>
+                            <div className="flex flex-col gap-2 mt-4 text-center">
+                              <p className="text-sm text-muted-foreground">
+                                Need to make many calls at once?
+                              </p>
+                              <Link href="/dashboard/campaigns/new">
+                                <Button variant="link" size="sm" className="mx-auto">
+                                  Create a Campaign Instead <ChevronRight className="h-3 w-3 ml-1" />
+                                </Button>
+                              </Link>
+                            </div>
                             {uploadResult && (
                               <div className="mt-6 p-4 rounded-lg bg-muted/50 text-left">
                                 <p className="text-sm font-medium mb-3 flex items-center">
@@ -1041,20 +1070,20 @@ export default function CallsPage() {
           </div>
           {/* Confirmation Dialog */}
           <Dialog
-            open={showStartCallDialog}
+            open={showImportDialog}
             onOpenChange={(open) => {
               if (!open) {
-                console.log("Dialog closed without initiating calls");
-                setShowStartCallDialog(false);
+                console.log("Dialog closed without action");
+                setShowImportDialog(false);
                 setImportSummary(null);
               }
             }}
           >
-            <DialogContent>
+            <DialogContent className="h-fit max-h-screen overflow-y-auto scrollbar-hidden">
               <DialogHeader>
-                <DialogTitle>Start Calling Process</DialogTitle>
+                <DialogTitle>Contacts Imported Successfully</DialogTitle>
                 <DialogDescription>
-                  Your contact import was successful
+                  Choose how you'd like to handle these contacts
                 </DialogDescription>
               </DialogHeader>
 
@@ -1069,27 +1098,76 @@ export default function CallsPage() {
 
                   <div className="p-4 bg-muted rounded-lg mb-4">
                     <p className="text-sm mb-2">
-                      These calls will be made using the agent:
+                      These contacts will use the agent:
                     </p>
                     <p className="font-medium">{importSummary.agentName}</p>
                   </div>
 
-                  <p className="text-sm text-muted-foreground">
-                    No calls have been initiated yet. Would you like to start the calling process now?
-                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+                    <Card className="border-2 border-primary/20">
+                      <CardContent className="pt-6 pb-4">
+                        <div className="flex justify-between items-start mb-4">
+                          <div>
+                            <h3 className="font-medium">Quick Call</h3>
+                            <p className="text-sm text-muted-foreground mt-1">
+                              Start calling all contacts immediately
+                            </p>
+                          </div>
+                          <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center">
+                            <Phone className="h-5 w-5 text-primary" />
+                          </div>
+                        </div>
+                        <Button
+                          className="w-full"
+                          onClick={() => {
+                            setShowImportDialog(false);
+                            startCallingProcess();
+                          }}
+                        >
+                          Start Calling Now
+                        </Button>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardContent className="pt-6 pb-4">
+                        <div className="flex justify-between items-start mb-4">
+                          <div>
+                            <h3 className="font-medium">Create Campaign</h3>
+                            <p className="text-sm text-muted-foreground mt-1">
+                              Set up scheduling and advanced options
+                            </p>
+                          </div>
+                          <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center">
+                            <LayoutGrid className="h-5 w-5 text-muted-foreground" />
+                          </div>
+                        </div>
+                        <Button
+                          variant="outline"
+                          className="w-full"
+                          onClick={() => {
+                            // Save data to localStorage to retrieve in campaign creation
+                            localStorage.setItem('campaignContacts', JSON.stringify(importSummary.uploadedContacts));
+                            localStorage.setItem('campaignAgentId', form.getValues("agentId"));
+                            // Redirect to campaign creation
+                            router.push('/dashboard/campaigns/new?from=import');
+                            setShowImportDialog(false);
+                          }}
+                        >
+                          Create Campaign
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </div>
                 </div>
               )}
 
               <DialogFooter className="flex justify-between gap-4">
                 <DialogClose asChild>
                   <Button variant="outline">
-                    Not Now
+                    Cancel
                   </Button>
                 </DialogClose>
-                <Button onClick={startCallingProcess}>
-                  <Phone className="h-4 w-4 mr-2" />
-                  Start Calling
-                </Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>

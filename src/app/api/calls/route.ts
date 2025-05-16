@@ -106,6 +106,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
+
     console.log("Call initiation result:", result);
     return NextResponse.json(result);
   } catch (error: any) {
@@ -117,7 +118,6 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// For bulk uploads via CSV
 // For bulk uploads via CSV
 export async function PUT(request: NextRequest) {
   try {
@@ -152,9 +152,6 @@ export async function PUT(request: NextRequest) {
         { status: 400 }
       );
     }
-
-    // IMPORTANT: This endpoint now ONLY stores contacts, does NOT initiate any calls
-    console.log("CSV import: Processing contacts only, NO calls will be initiated automatically");
 
     // Store contacts only, don't schedule calls at all
     await connectDB();
@@ -209,12 +206,14 @@ export async function PUT(request: NextRequest) {
       results.created++;
     }
 
-    console.log(`CSV Import: Processed ${records.length} contacts. NO calls initiated.`);
+    console.log(`CSV Import: Processed ${records.length} contacts for campaign creation.`);
 
     return NextResponse.json({
-      message: `Processed ${records.length} contacts from CSV. No calls have been initiated yet.`,
+      message: `Processed ${records.length} contacts from CSV.`,
       results,
-      uploadedContacts
+      uploadedContacts,
+      agentId,
+      campaignReady: true // Flag to indicate we can create a campaign
     });
   } catch (error: any) {
     console.error('Error processing CSV:', error);

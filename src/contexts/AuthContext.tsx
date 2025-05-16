@@ -9,6 +9,11 @@ type User = {
   name: string;
   email: string;
   plan: string;
+  walletBalance: number;
+  minutesUsed: number;
+  totalMinutes: number;
+  agentsAllowed: number;
+  extraMinuteRate?: number;
 };
 
 type AuthContextType = {
@@ -87,10 +92,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Decode user info from token
     const decoded: any = jwtDecode(data.token);
     setUser({
-      id: decoded.userId,
+       id: decoded.userId,
       name: decoded.name,
       email: decoded.email,
       plan: decoded.plan,
+      walletBalance: decoded.walletBalance || 0,
+      minutesUsed: decoded.minutesUsed || 0,
+      totalMinutes: decoded.totalMinutes || 0,
+      agentsAllowed: decoded.agentsAllowed || 0,
+      extraMinuteRate: decoded.extraMinuteRate,
     });
 
     // Redirect to dashboard

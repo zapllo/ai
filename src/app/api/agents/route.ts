@@ -3,6 +3,7 @@ import connectDB from "@/lib/db";
 import Agent from "@/models/agentModel";
 import { getUserFromRequest } from "@/lib/jwt";
 import { createAgent } from "@/lib/elevenLabs";
+import { checkAgentCreationLimit } from "@/lib/plan-limits";
 
 /* ───────────────────────── GET ───────────────────────── */
 
@@ -21,6 +22,7 @@ export async function GET(request: NextRequest) {
 
     /** What the dashboard needs */
     const formatted = agents.map((a) => ({
+      _id: a._id,
       agent_id: a.agentId,
       name: a.name,
       description: a.description,
@@ -56,6 +58,11 @@ export async function POST(request: NextRequest) {
     const userData = await getUserFromRequest(request);
     if (!userData) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+    // Check if user has reached agent limit
+    const limitCheck = await checkAgentCreationLimit(request);
+    if (limitCheck) {
+      return limitCheck; // Returns a 403 response if limit reached
     }
 
     /* what the UI sent */

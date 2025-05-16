@@ -10,7 +10,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import {
   LayoutDashboard, PhoneCall, Users, BarChart,
   Settings, HelpCircle, LogOut, ChevronLeft,
-  Menu, Plus, Contact, Shield
+  Menu, Plus, Contact, Shield,
+  Megaphone
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -57,6 +58,11 @@ export function DashboardSidebar() {
       icon: <Contact className="h-5 w-5" />,
       label: "Contacts",
       href: "/dashboard/contacts"
+    },
+    {
+      icon: <Megaphone className="h-5 w-5" />,
+      label: "Campaigns",
+      href: "/dashboard/campaigns"
     },
     {
       icon: <BarChart className="h-5 w-5" />,

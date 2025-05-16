@@ -44,6 +44,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { WalletDisplay } from "./wallet-display";
 
 // Mock notifications - would be fetched from API in a real implementation
 const notifications = [
@@ -333,8 +334,9 @@ export function DashboardHeader() {
 
         {/* Actions section */}
         <div className="flex items-center gap-1 md:gap-2">
-          <TooltipProvider>
+          <WalletDisplay />
 
+          <TooltipProvider>
 
             <DropdownMenu open={quickActionsOpen} onOpenChange={setQuickActionsOpen}>
               <Tooltip>
@@ -508,14 +510,18 @@ export function DashboardHeader() {
                     <span className="text-sm">Profile</span>
                   </DropdownMenuItem>
                 </Link>
-                <DropdownMenuItem className="cursor-pointer focus:bg-muted rounded-md h-9">
-                  <Settings className="mr-2 h-4 w-4" />
-                  <span className="text-sm">Settings</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer focus:bg-muted rounded-md h-9">
-                  <Gauge className="mr-2 h-4 w-4" />
-                  <span className="text-sm">Usage & Billing</span>
-                </DropdownMenuItem>
+                <Link href='/dashboard/settings'>
+                  <DropdownMenuItem className="cursor-pointer focus:bg-muted rounded-md h-9">
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span className="text-sm">Settings</span>
+                  </DropdownMenuItem>
+                </Link>
+                <Link href='/dashboard/billing'>
+                  <DropdownMenuItem className="cursor-pointer focus:bg-muted rounded-md h-9">
+                    <Gauge className="mr-2 h-4 w-4" />
+                    <span className="text-sm">Usage & Billing</span>
+                  </DropdownMenuItem>
+                </Link>
                 <DropdownMenuItem className="cursor-pointer focus:bg-muted rounded-md h-9">
                   <HelpCircle className="mr-2 h-4 w-4" />
                   <span className="text-sm">Help & Support</span>

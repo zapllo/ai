@@ -4,7 +4,7 @@ export interface ICall extends Document {
   userId: mongoose.Types.ObjectId;
   agentId: mongoose.Types.ObjectId;
   contactId?: mongoose.Types.ObjectId;
-
+  campaignId?: mongoose.Types.ObjectId;  // ← NEW field to link calls to campaigns
   phoneNumber: string;
   direction: "inbound" | "outbound";
 
@@ -69,7 +69,7 @@ const CallSchema = new Schema<ICall>(
     transcription: String,
     contactName: String,
     customMessage: String,
-
+    campaignId: { type: Schema.Types.ObjectId, ref: "Campaign" },
     scheduledFor: Date,
     startTime: Date,
     endTime: Date,
