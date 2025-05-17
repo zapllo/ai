@@ -32,7 +32,12 @@ export async function POST(request: NextRequest) {
       userId: user._id,
       name: user.name,
       email: user.email,
-      plan: user.plan
+      plan: user.plan,
+      walletBalance: user.walletBalance,
+      minutesUsed: user.minutesUsed,
+      totalMinutes: user.totalMinutes,
+      agentsAllowed: user.agentsAllowed,
+      extraMinuteRate: user.extraMinuteRate
     });
 
     return NextResponse.json({
@@ -42,7 +47,12 @@ export async function POST(request: NextRequest) {
         id: user._id,
         name: user.name,
         email: user.email,
-        plan: user.plan
+        plan: user.plan,
+        walletBalance: user.walletBalance,
+        minutesUsed: user.minutesUsed,
+        totalMinutes: user.totalMinutes,
+        agentsAllowed: user.agentsAllowed,
+        extraMinuteRate: user.extraMinuteRate
       },
     });
   } catch (error: any) {

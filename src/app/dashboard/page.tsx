@@ -71,6 +71,21 @@ export default function Dashboard() {
   const completedCalls = calls.filter(c => c.status === 'completed').length;
   const callSuccessRate = totalCalls > 0 ? Math.round((completedCalls / totalCalls) * 100) : 0;
 
+  // Calculate minutes used percentage
+  const minutesUsed = user?.minutesUsed || 0;
+  const totalMinutes = user?.totalMinutes || 0; // Avoid division by zero
+  const minutesUsedPercentage = Math.min(100, Math.round((minutesUsed / totalMinutes) * 100));
+
+  // Format minutes for display
+  const formatMinutes = (mins: number) => {
+    if (mins >= 60) {
+      const hours = Math.floor(mins / 60);
+      const remainingMins = mins % 60;
+      return `${hours} hr${hours !== 1 ? 's' : ''}${remainingMins > 0 ? ` ${remainingMins} min` : ''}`;
+    }
+    return `${mins} min`;
+  };
+
   const toggle = async (id: string, enable: boolean) => {
     await fetch(`/api/agents/${id}`, {
       method: "PATCH",
@@ -186,16 +201,16 @@ export default function Dashboard() {
                       <Clock className="h-6 w-6 text-primary" />
                     </div>
                     <span className="text-xs font-medium bg-primary/10 text-primary py-1 px-2 rounded-full">
-                      120 min
+                      {formatMinutes(minutesUsed)}
                     </span>
                   </div>
                   <div className="space-y-1">
                     <p className="text-sm text-muted-foreground">Minutes Used</p>
                     <div className="flex items-baseline gap-2">
-                      <p className="text-3xl font-bold">2 hrs</p>
-                      <p className="text-sm text-muted-foreground">this month</p>
+                      <p className="text-3xl font-bold">{formatMinutes(minutesUsed)}</p>
+                      <p className="text-sm text-muted-foreground">of {formatMinutes(totalMinutes)}</p>
                     </div>
-                    <Progress value={30} className="h-1 mt-2" />
+                    <Progress value={minutesUsedPercentage} className="h-1 mt-2" />
                   </div>
                 </CardContent>
               </Card>
@@ -548,11 +563,11 @@ export default function Dashboard() {
                       Personalize your AI agents' voice tone and conversation style from the agent settings page to improve call engagement.
                     </p>
 
-                    <Link href="/dashboard/guides/agent-personalization">
+                    {/* <Link href="/dashboard/guides/agent-personalization">
                       <Button variant="link" className="px-0 h-auto text-primary">
                         Learn how <ChevronRight className="h-3 w-3 ml-1" />
                       </Button>
-                    </Link>
+                    </Link> */}
                   </CardContent>
                 </Card>
               </motion.div>

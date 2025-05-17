@@ -4,6 +4,7 @@ import crypto from "crypto";
 import connectDB from "@/lib/db";
 import Call from "@/models/callModel";
 import { OpenAI } from "openai";
+import { updateUserUsage } from "@/lib/plan-limits";
 
 const SECRET = process.env.ELEVENLABS_WEBHOOK_SECRET!;
 const openai = new OpenAI({

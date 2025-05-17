@@ -851,7 +851,6 @@ function NewCallPageContent() {
                                     </a>
                                   </div>
                                 </div>
-
                                 <Alert variant="outline" className="bg-amber-50/30 border-amber-200 text-amber-800">
                                   <Info className="h-4 w-4 text-amber-800" />
                                   <AlertTitle>Important</AlertTitle>
@@ -947,12 +946,12 @@ function NewCallPageContent() {
                         </div>
 
                         <div className="mt-4">
-                          <Button variant="outline" className="w-full" asChild>
+                          {/* <Button variant="outline" className="w-full" asChild>
                             <a href="/dashboard/guides/effective-calls" target="_blank">
                               Learn More About AI Voice Calls
                               <ChevronRight className="ml-2 h-4 w-4" />
                             </a>
-                          </Button>
+                          </Button> */}
                         </div>
                       </div>
                     </ScrollArea>

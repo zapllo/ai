@@ -64,15 +64,14 @@ export default function Home() {
 
         {/* Subtle noise texture */}
         <div className="absolute inset-0 opacity-30 mix-blend-soft-light"
-             style={{ backgroundImage: 'url("/noise.png")', backgroundRepeat: 'repeat' }}></div>
+          style={{ backgroundImage: 'url("/noise.png")', backgroundRepeat: 'repeat' }}></div>
       </div>
 
       <header
-        className={`sticky top-0 z-50 w-full transition-all duration-300 ${
-          scrolled
-            ? "border-b border-border/40 bg-background/80 backdrop-blur-xl shadow-sm"
-            : "border-b border-transparent bg-background/5 backdrop-blur-sm"
-        }`}
+        className={`sticky top-0 z-50 w-full transition-all duration-300 ${scrolled
+          ? "border-b border-border/40 bg-background/80 backdrop-blur-xl shadow-sm"
+          : "border-b border-transparent bg-background/5 backdrop-blur-sm"
+          }`}
       >
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 z-10">
@@ -110,10 +109,9 @@ export default function Home() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
             >
-              Zapllo AI
+              Zapllo Voice
             </motion.span>
           </Link>
-
           <motion.nav
             className="hidden md:flex items-center gap-6 lg:gap-8"
             initial={{ opacity: 0, y: -10 }}
@@ -136,14 +134,13 @@ export default function Home() {
           </motion.nav>
 
           <div className="flex items-center gap-3">
-            <motion.div
+            {/* <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.3, duration: 0.4 }}
             >
               <ThemeToggle />
-            </motion.div>
-
+            </motion.div> */}
             <div className="hidden sm:block">
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
@@ -160,7 +157,6 @@ export default function Home() {
                 </Link>
               </motion.div>
             </div>
-
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/db';
 import User from '@/models/userModel';
 import crypto from 'crypto';
+import { sendEmail } from '@/lib/sendEmail';
+import { createResetPasswordEmailTemplate } from '@/lib/resetPasswordTemplate';
 
 export async function POST(request: NextRequest) {
   try {
@@ -32,17 +34,23 @@ export async function POST(request: NextRequest) {
     user.resetPasswordExpire = new Date(Date.now() + 30 * 60 * 1000);
     await user.save();
 
-    // In a real implementation, you would send an email with the reset link:
-    // const resetUrl = `${process.env.NEXT_PUBLIC_FRONTEND_URL}/reset-password?token=${resetToken}`;
+    // Create reset URL
+    const resetUrl = `https://ai.zapllo.com/reset-password?token=${resetToken}`;
 
-    // For development purposes, log the token to console
-    console.log(`Reset token for ${email}: ${resetToken}`);
-    console.log(`Reset URL: ${process.env.NEXT_PUBLIC_FRONTEND_URL}/reset-password?token=${resetToken}`);
+    // Create email content with the template
+    const username = user.firstName || user.email.split('@')[0];
+    const html = createResetPasswordEmailTemplate(username, resetUrl);
+
+    // Send the email
+    await sendEmail({
+      to: user.email,
+      subject: 'Zapllo - Password Reset Request',
+      text: `Reset your password by clicking on the following link: ${resetUrl}`,
+      html
+    });
 
     return NextResponse.json({
-      message: 'If your email is registered, you will receive reset instructions.',
-      // Remove the token in production - only for testing
-      resetToken: resetToken
+      message: 'If your email is registered, you will receive reset instructions.'
     }, { status: 200 });
 
   } catch (error: any) {

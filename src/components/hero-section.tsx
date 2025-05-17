@@ -152,7 +152,6 @@ export function HeroSection() {
         <div className="absolute top-1/3 left-1/4 w-[500px] h-[500px] bg-blue-500/10 dark:bg-blue-500/10 rounded-full blur-[120px]" />
         <div className="absolute bottom-1/3 right-1/4 w-[500px] h-[500px] bg-purple-500/10 dark:bg-purple-500/10 rounded-full blur-[120px]" />
       </div>
-
       <div className="container mx-auto relative z-20">
         <motion.div
           className="text-center max-w-4xl mx-auto mb-16"
@@ -169,7 +168,6 @@ export function HeroSection() {
             <Wand2 className="h-4 w-4" />
             <span className="text-sm font-medium text-white">Revolutionary Voice AI Technology</span>
           </motion.div>
-
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -396,7 +394,7 @@ export function HeroSection() {
                 transition={{ delay: 1.7 + i * 0.1 }}
               >
                 <Image
-                  src={`/logos/${company}.svg`}
+                  src={`/logos/${company}.webp`}
                   alt={company}
                   width={120}
                   height={40}

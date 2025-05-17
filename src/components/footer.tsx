@@ -1,5 +1,7 @@
 import Image from "next/image";
 import { Github, Twitter, Linkedin, Youtube } from "lucide-react";
+import Link from "next/link";
+import {motion} from 'framer-motion'
 
 export function Footer() {
   return (
@@ -7,14 +9,45 @@ export function Footer() {
       <div className="container mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-center md:items-start gap-8">
           <div className="flex flex-col items-center md:items-start">
-            <Image
-              src="/logo.svg"
-              alt="AI Agents Logo"
-              width={140}
-              height={40}
-              className="mb-4"
-            />
-            <p className="text-gray-400 max-w-md text-center md:text-left">
+            <Link href="/" className="flex items-center gap-2 z-10">
+              <motion.div
+                className="relative"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{
+                  duration: 0.5,
+                  type: "spring",
+                  stiffness: 260,
+                  damping: 20
+                }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Image
+                  src="/zapllo.png"
+                  alt="Zapllo AI"
+                  width={44}
+                  height={44}
+                  className="h-11 w-auto"
+                />
+                <div className="absolute -top-1 -right-1">
+                  <div className="relative flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-violet-600"></span>
+                  </div>
+                </div>
+              </motion.div>
+
+              <motion.span
+                className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-violet-600 dark:from-blue-400 dark:to-violet-400"
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+              >
+                Zapllo Voice
+              </motion.span>
+            </Link>
+            <p className="text-gray-400 p-4 max-w-xl text-center md:text-left">
               Transforming business communications with AI-powered voice agents that sound human.
             </p>
           </div>
@@ -47,7 +80,7 @@ export function Footer() {
 
         <div className="flex flex-col md:flex-row justify-between items-center mt-12 pt-8 border-t border-gray-800">
           <p className="text-gray-500 text-sm">
-            © {new Date().getFullYear()} AI Voice Agents. All rights reserved.
+            © {new Date().getFullYear()} Zapllo Voice. All rights reserved.
           </p>
 
           <div className="flex gap-6 mt-4 md:mt-0">

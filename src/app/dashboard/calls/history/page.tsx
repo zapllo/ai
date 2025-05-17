@@ -801,7 +801,7 @@ export default function CallHistoryPage() {
       </main>
       {/* Call Details Dialog */}
       <Dialog open={!!selectedCall} onOpenChange={(open) => !open && setSelectedCall(null)}>
-        <DialogContent className="sm:max-w-[600px] h-fit max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-[600px] scrollbar-hidden h-fit max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Call Details</DialogTitle>
             <DialogDescription>
@@ -915,14 +915,7 @@ export default function CallHistoryPage() {
                   </p>
                 </div>
 
-                {selectedCall.cost !== undefined && (
-                  <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground">Cost</p>
-                    <p className="text-sm">
-                      ${selectedCall.cost.toFixed(2)}
-                    </p>
-                  </div>
-                )}
+
               </div>
 
               {selectedCall.notes && (

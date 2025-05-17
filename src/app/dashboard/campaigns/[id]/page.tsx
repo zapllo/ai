@@ -296,7 +296,7 @@ export default function CampaignDetailPage({ params }: { params: { id: string } 
     <div className="min-h-screen text-foreground flex">
       <DashboardSidebar />
 
-      <main className="flex-1 overflow-y-auto bg-background">
+      <main className="flex-1 overflow-y-auto h-fit max-h-screen bg-background">
         <DashboardHeader />
 
         <div className="mx-auto px-4 sm:px-6 py-8">

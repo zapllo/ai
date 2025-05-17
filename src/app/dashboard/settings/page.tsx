@@ -270,7 +270,7 @@ export default function SettingsPage() {
                   </Card>
 
                   <div className="space-y-6">
-                    <Card>
+                    {/* <Card>
                       <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                           <UserCog className="h-5 w-5 text-primary" />
@@ -327,7 +327,7 @@ export default function SettingsPage() {
                           </div>
                         </div>
                       </CardContent>
-                    </Card>
+                    </Card> */}
 
                     <Card>
                       <CardHeader>

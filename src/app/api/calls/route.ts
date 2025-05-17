@@ -105,8 +105,6 @@ export async function POST(request: NextRequest) {
         lastContacted: new Date()
       });
     }
-
-
     console.log("Call initiation result:", result);
     return NextResponse.json(result);
   } catch (error: any) {

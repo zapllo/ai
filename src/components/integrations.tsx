@@ -8,18 +8,18 @@ import { Puzzle, ArrowRight, Code, Zap, Layers } from "lucide-react";
 
 // Define integration partners with enhanced data
 const integrations = [
-  { name: "Salesforce", logo: "/logos/salesforce.svg", category: "crm" },
-  { name: "HubSpot", logo: "/logos/hubspot.svg", category: "crm" },
-  { name: "Zendesk", logo: "/logos/zendesk.svg", category: "support" },
-  { name: "Intercom", logo: "/logos/intercom.svg", category: "support" },
-  { name: "Shopify", logo: "/logos/shopify.svg", category: "ecommerce" },
-  { name: "Zoom", logo: "/logos/zoom.svg", category: "communication" },
-  { name: "Google Calendar", logo: "/logos/google-calendar.svg", category: "productivity" },
-  { name: "Microsoft Teams", logo: "/logos/microsoft-teams.svg", category: "communication" },
-  { name: "Slack", logo: "/logos/slack.svg", category: "communication" },
-  { name: "Zapier", logo: "/logos/zapier.svg", category: "automation" },
-  { name: "Twilio", logo: "/logos/twilio.svg", category: "communication" },
-  { name: "Pipedrive", logo: "/logos/pipedrive.svg", category: "crm" },
+  { name: "Salesforce", logo: "/logos/salesforce.webp", category: "crm" },
+  { name: "HubSpot", logo: "/logos/hubspot.png", category: "crm" },
+  { name: "Zendesk", logo: "/logos/zendesk.png", category: "support" },
+  { name: "Intercom", logo: "/logos/intercom.png", category: "support" },
+  { name: "Shopify", logo: "/logos/shopify.png", category: "ecommerce" },
+  { name: "Zoom", logo: "/logos/zoom.png", category: "communication" },
+  { name: "Google Calendar", logo: "/logos/google.png", category: "productivity" },
+  { name: "Microsoft Teams", logo: "/logos/teams.png", category: "communication" },
+  { name: "Slack", logo: "/logos/slack.png", category: "communication" },
+  { name: "Zapier", logo: "/logos/zapier.png", category: "automation" },
+  { name: "Twilio", logo: "/logos/twilio.png", category: "communication" },
+  { name: "Pipedrive", logo: "/logos/pipedrive.png", category: "crm" },
 ];
 
 export function Integrations() {
@@ -37,8 +37,8 @@ export function Integrations() {
         <div className="absolute top-2/3 right-1/3 w-96 h-96 bg-violet-500/10 rounded-full blur-[80px]" />
       </div>
 
-      <div className="container mx-auto relative z-10">
-        <div className="grid md:grid-cols-2 gap-20 items-center">
+      <div className="container max-w-6xl mx-auto relative z-10">
+        <div className="grid md:grid-cols-2   gap-20 items-center">
           <motion.div
             style={{ opacity, x: xLeft }}
             className="space-y-8"
@@ -84,12 +84,12 @@ export function Integrations() {
               </motion.div>
             </div>
 
-            <Link href="/integrations">
+            {/* <Link href="/integrations">
               <Button variant="outline" className="border-gray-700 text-gray-300 hover:bg-white/5 rounded-xl px-6 py-5 text-base group">
                 View All Integrations
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Button>
-            </Link>
+            </Link> */}
           </motion.div>
 
           <motion.div
@@ -104,7 +104,7 @@ export function Integrations() {
               {integrations.map((integration, index) => (
                 <motion.div
                   key={integration.name}
-                  className="flex items-center justify-center h-20 bg-white/5 border border-white/10 rounded-xl p-4 hover:border-blue-500/30 hover:bg-white/10 transition-all backdrop-blur-sm"
+                  className="flex items-center justify-center h-20 bg-white/5 border border-white/10 rounded-xl p-6 hover:border-blue-500/30 hover:bg-white/10 transition-all backdrop-blur-sm"
                   initial={{ opacity: 0, scale: 0.9 }}
                   whileInView={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.3, delay: index * 0.03 }}
@@ -119,7 +119,7 @@ export function Integrations() {
                     alt={integration.name}
                     width={40}
                     height={40}
-                    className="w-auto h-8 object-contain opacity-70 hover:opacity-100 transition-all"
+                    className="w-auto h-24 object-contain opacity-70 hover:opacity-100 transition-all"
                   />
                 </motion.div>
               ))}

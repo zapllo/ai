@@ -16,7 +16,7 @@ const dashboardTabs = [
     id: "analytics",
     label: "Analytics",
     icon: <BarChart2 className="h-4 w-4" />,
-    image: "/dashboard-analytics.jpg",
+    image: "/demo/analytics.png",
     description: "Monitor real-time performance metrics of your AI voice agents",
     color: "blue"
   },
@@ -24,7 +24,7 @@ const dashboardTabs = [
     id: "calls",
     label: "Call Logs",
     icon: <Activity className="h-4 w-4" />,
-    image: "/dashboard-calls.jpg",
+    image: "/demo/call-logs.png",
     description: "Review call transcripts with sentiment analysis and key insights",
     color: "green"
   },
@@ -32,7 +32,7 @@ const dashboardTabs = [
     id: "agents",
     label: "Agent Builder",
     icon: <BrainCircuit className="h-4 w-4" />,
-    image: "/dashboard-agents.jpg",
+    image: "/demo/sales.png",
     description: "Design and train your AI voice personas with advanced customization",
     color: "purple"
   },
@@ -40,7 +40,7 @@ const dashboardTabs = [
     id: "reporting",
     label: "Insights",
     icon: <PieChart className="h-4 w-4" />,
-    image: "/dashboard-reports.jpg",
+    image: "/demo/campaigns.png",
     description: "Generate detailed reports on agent performance and ROI metrics",
     color: "indigo"
   }
@@ -112,22 +112,22 @@ const RotatingCube = ({ color = "blue" }) => {
       >
         {/* Front face */}
         <div className="absolute inset-0 backdrop-blur-sm transform-3d translate-z-[40px]"
-             style={{ backgroundColor: bgColor, borderColor: borderColor, borderWidth: '2px' }}></div>
+          style={{ backgroundColor: bgColor, borderColor: borderColor, borderWidth: '2px' }}></div>
         {/* Back face */}
         <div className="absolute inset-0 backdrop-blur-sm transform-3d translate-z-[-40px] rotate-y-180"
-             style={{ backgroundColor: bgColor, borderColor: borderColor, borderWidth: '2px' }}></div>
+          style={{ backgroundColor: bgColor, borderColor: borderColor, borderWidth: '2px' }}></div>
         {/* Right face */}
         <div className="absolute inset-0 backdrop-blur-sm transform-3d translate-x-[40px] rotate-y-90"
-             style={{ backgroundColor: bgColor, borderColor: borderColor, borderWidth: '2px' }}></div>
+          style={{ backgroundColor: bgColor, borderColor: borderColor, borderWidth: '2px' }}></div>
         {/* Left face */}
         <div className="absolute inset-0 backdrop-blur-sm transform-3d translate-x-[-40px] rotate-y-[-90deg]"
-             style={{ backgroundColor: bgColor, borderColor: borderColor, borderWidth: '2px' }}></div>
+          style={{ backgroundColor: bgColor, borderColor: borderColor, borderWidth: '2px' }}></div>
         {/* Top face */}
         <div className="absolute inset-0 backdrop-blur-sm transform-3d translate-y-[-40px] rotate-x-90"
-             style={{ backgroundColor: bgColor, borderColor: borderColor, borderWidth: '2px' }}></div>
+          style={{ backgroundColor: bgColor, borderColor: borderColor, borderWidth: '2px' }}></div>
         {/* Bottom face */}
         <div className="absolute inset-0 backdrop-blur-sm transform-3d translate-y-[40px] rotate-x-[-90deg]"
-             style={{ backgroundColor: bgColor, borderColor: borderColor, borderWidth: '2px' }}></div>
+          style={{ backgroundColor: bgColor, borderColor: borderColor, borderWidth: '2px' }}></div>
       </motion.div>
     </div>
   );
@@ -169,7 +169,7 @@ const AIConsole = () => {
     let i = 0;
     const typing = setInterval(() => {
       if (i < fullText.length) {
-        setText(fullText.slice(0, i+1));
+        setText(fullText.slice(0, i + 1));
         i++;
       } else {
         clearInterval(typing);
@@ -180,7 +180,7 @@ const AIConsole = () => {
   }, []);
 
   return (
-    <div className="bg-black/90 p-3 rounded-lg font-mono text-xs text-green-400 max-w-[240px] h-[100px] border border-green-500/50 overflow-hidden shadow-lg shadow-green-500/20">
+    <div className="bg-black/90 p-3 rounded-lg font-mono  text-xs text-green-400 max-w-[240px] h-[140px] border border-green-500/50 overflow-hidden shadow-lg shadow-green-500/20">
       <pre className="whitespace-pre-wrap">
         {text}
         <motion.span
@@ -334,16 +334,16 @@ export function DashboardPreview() {
             <div className="absolute -left-16 -top-12 opacity-80 hidden xl:block">
               <RotatingCube color={
                 activeTab === "analytics" ? "blue" :
-                activeTab === "calls" ? "green" :
-                activeTab === "agents" ? "purple" : "indigo"
+                  activeTab === "calls" ? "green" :
+                    activeTab === "agents" ? "purple" : "indigo"
               } />
             </div>
 
             <div className="absolute -right-16 -bottom-12 opacity-80 hidden xl:block">
               <RotatingCube color={
                 activeTab === "analytics" ? "indigo" :
-                activeTab === "calls" ? "blue" :
-                activeTab === "agents" ? "green" : "purple"
+                  activeTab === "calls" ? "blue" :
+                    activeTab === "agents" ? "green" : "purple"
               } />
             </div>
 
@@ -381,10 +381,9 @@ export function DashboardPreview() {
 
                       <div className="relative aspect-[16/10] rounded-2xl overflow-hidden border-2 border-white/20 shadow-2xl bg-gray-900/90">
                         {/* Terminal window in corner for effect */}
-                        <div className="absolute top-6 right-6 z-20">
+                        <div className="absolute  top-6 right-6 z-20">
                           <AIConsole />
                         </div>
-
                         <Image
                           src={tab.image}
                           alt={`${tab.label} dashboard view`}
@@ -397,7 +396,7 @@ export function DashboardPreview() {
 
                         {/* Grid overlay with increased visibility */}
                         <div className="absolute inset-0 opacity-30"
-                            style={{ backgroundImage: 'url("/grid-pattern.svg")', backgroundSize: '50px 50px' }}></div>
+                          style={{ backgroundImage: 'url("/grid-pattern.svg")', backgroundSize: '50px 50px' }}></div>
 
                         <div className="absolute inset-0 flex items-end">
                           <div className="p-8 w-full">
@@ -426,10 +425,9 @@ export function DashboardPreview() {
                           </div>
                           <span className="text-xs font-medium text-white">Live Data</span>
                         </div>
-
                         {/* Data visualization element with increased size */}
                         <div className="absolute bottom-24 left-8 bg-black/70 backdrop-blur-md p-3 rounded-xl border border-white/20 hidden md:block shadow-lg">
-                          <DataViz />
+                          {/* <DataViz /> */}
                         </div>
                       </div>
                     </motion.div>
@@ -453,8 +451,8 @@ export function DashboardPreview() {
                 whileHover={{
                   scale: 1.03,
                   boxShadow: `0 0 25px 0 rgba(${feature.color === 'blue' ? '56, 189, 248' :
-                                              feature.color === 'violet' ? '139, 92, 246' :
-                                              feature.color === 'indigo' ? '99, 102, 241' : '34, 197, 94'}, 0.3)`
+                    feature.color === 'violet' ? '139, 92, 246' :
+                      feature.color === 'indigo' ? '99, 102, 241' : '34, 197, 94'}, 0.3)`
                 }}
               >
                 <div className="flex items-start gap-4">
@@ -530,20 +528,20 @@ export function DashboardPreview() {
               transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
             />
 
-            <div className="relative">
+            <div className="relative h-[400px]">
               <Image
                 src="/phone-mockup.png"
                 alt="Mobile dashboard"
                 width={300}
                 height={600}
-                className="relative"
+                className="relative h-[620px] z-10"
               />
-              <div className="absolute top-[12%] left-[8%] right-[8%] bottom-[12%] overflow-hidden rounded-[22px]">
+              <div className="absolute top-[6%] h-[580px] w-[265px] left-[6%] right-[11%] bottom-[12%] overflow-hidden rounded-[22px] z-[100]">
                 <Image
-                  src="/mobile-dashboard.jpg"
+                  src="/mobile.png"
                   alt="Mobile interface"
                   fill
-                  className="object-cover"
+                  className="object-cover h-[] object-center"
                 />
 
                 {/* Scanner effect animation with increased brightness */}
@@ -556,7 +554,7 @@ export function DashboardPreview() {
                 {/* Overlay effects with reduced opacity */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20"></div>
                 <div className="absolute inset-0 opacity-40"
-                     style={{ backgroundImage: 'url("/grid-pattern.svg")', backgroundSize: '15px 15px' }}></div>
+                  style={{ backgroundImage: 'url("/grid-pattern.svg")', backgroundSize: '15px 15px' }}></div>
 
                 {/* Live status indicator with increased contrast */}
                 <div className="absolute top-4 right-4 flex items-center gap-1.5 bg-black/70 backdrop-blur-sm px-2 py-1 rounded-full border border-white/20 scale-75 shadow-md">
@@ -568,14 +566,14 @@ export function DashboardPreview() {
                 </div>
 
                 {/* Interface elements with increased contrast */}
-                <div className="absolute bottom-4 left-4 right-4">
+                <div className="absolute bottom-24 left-4 right-4">
                   <div className="bg-black/80 backdrop-blur-md rounded-lg p-2.5 border border-white/20 shadow-lg">
                     <div className="flex justify-between items-center">
                       <div className="text-xs">
                         <div className="font-medium text-white">Call Analytics</div>
                         <div className="text-green-400 text-[10px] font-medium">+32% this week</div>
                       </div>
-                      <div className="h-10 w-10">
+                      <div className="h-10 w-16">
                         <DataViz />
                       </div>
                     </div>
@@ -584,12 +582,12 @@ export function DashboardPreview() {
               </div>
 
               {/* Glowing dot on home button with increased brightness */}
-              <div className="absolute bottom-[10%] left-1/2 transform -translate-x-1/2 h-3 w-3 bg-blue-400 rounded-full animate-pulse shadow-md shadow-blue-500/50"></div>
+              <div className="absolute bottom-[6%] left-1/2 transform -translate-x-1/2 h-3 w-3 bg-blue-400 rounded-full animate-pulse shadow-md shadow-blue-500/50 z-20"></div>
             </div>
 
-            <div className="relative flex justify-center mt-6">
+            <div className="relative flex  justify-center mt-56">
               <motion.div
-                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-white bg-black/70 backdrop-blur-md border border-white/20 text-xs shadow-lg"
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-white bg-black/70 mb-4 backdrop-blur-md border border-white/20 text-xs shadow-lg"
                 animate={{
                   boxShadow: ['0 0 0 rgba(0, 0, 255, 0)', '0 0 15px rgba(90, 60, 255, 0.5)', '0 0 0 rgba(0, 0, 255, 0)']
                 }}
@@ -601,6 +599,7 @@ export function DashboardPreview() {
             </div>
           </motion.div>
         </div>
+
       </motion.div>
     </section>
   );

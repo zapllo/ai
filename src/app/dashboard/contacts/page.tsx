@@ -83,11 +83,23 @@ import {
   CheckCircle,
   FileText,
   MessageSquarePlus,
-  PhoneCall
+  PhoneCall,
+  AlertCircle
 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { toast } from "@/components/ui/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 // Contact type definition
 type Contact = {
@@ -131,6 +143,8 @@ export default function ContactsPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isImporting, setIsImporting] = useState(false);
   const [importResults, setImportResults] = useState<any>(null);
+  const [showDeleteAlert, setShowDeleteAlert] = useState(false);
+  const [deletingContactId, setDeletingContactId] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof contactSchema>>({
     resolver: zodResolver(contactSchema),
@@ -208,10 +222,17 @@ export default function ContactsPage() {
       fetchContacts();
       setShowAddContact(false);
       form.reset();
-
+      toast({
+        title: "Success",
+        description: "Contact added successfully",
+      });
     } catch (error: any) {
       console.error("Error adding contact:", error);
-      alert(error.message);
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
     }
   };
 
@@ -236,10 +257,44 @@ export default function ContactsPage() {
       fetchContacts();
       setEditingContact(null);
       form.reset();
-
+      toast({
+        title: "Success",
+        description: "Contact updated successfully",
+      });
     } catch (error: any) {
       console.error("Error updating contact:", error);
-      alert(error.message);
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteSingleContact = async (contactId: string) => {
+    try {
+      const response = await fetch(`/api/contacts/${contactId}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete contact");
+      }
+
+      // Refresh contacts list
+      fetchContacts();
+      setSelectedContacts(prev => prev.filter(id => id !== contactId));
+      toast({
+        title: "Success",
+        description: "Contact deleted successfully",
+      });
+    } catch (error: any) {
+      console.error("Error deleting contact:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete contact",
+        variant: "destructive",
+      });
     }
   };
 
@@ -249,19 +304,36 @@ export default function ContactsPage() {
     try {
       setIsDeleting(true);
 
-      for (const contactId of selectedContacts) {
-        await fetch(`/api/contacts/${contactId}`, {
-          method: "DELETE",
-        });
+      const response = await fetch("/api/contacts/batch", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ contactIds: selectedContacts }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete contacts");
       }
+
+      const result = await response.json();
 
       // Refresh contacts list
       fetchContacts();
       setSelectedContacts([]);
+      setShowDeleteAlert(false);
 
+      toast({
+        title: "Success",
+        description: `Successfully deleted ${result.deletedCount} contacts`,
+      });
     } catch (error: any) {
       console.error("Error deleting contacts:", error);
-      alert("Failed to delete contacts");
+      toast({
+        title: "Error",
+        description: "Failed to delete contacts",
+        variant: "destructive",
+      });
     } finally {
       setIsDeleting(false);
     }
@@ -291,7 +363,11 @@ export default function ContactsPage() {
 
     } catch (error: any) {
       console.error("Error exporting contacts:", error);
-      alert("Failed to export contacts");
+      toast({
+        title: "Error",
+        description: "Failed to export contacts",
+        variant: "destructive",
+      });
     } finally {
       setIsExporting(false);
     }
@@ -324,7 +400,11 @@ export default function ContactsPage() {
 
     } catch (error: any) {
       console.error("Error importing contacts:", error);
-      alert("Failed to import contacts");
+      toast({
+        title: "Error",
+        description: "Failed to import contacts",
+        variant: "destructive",
+      });
     } finally {
       setIsImporting(false);
       if (fileInputRef.current) {
@@ -508,7 +588,7 @@ export default function ContactsPage() {
                   <Button
                     variant="destructive"
                     size="sm"
-                    onClick={handleDeleteContacts}
+                    onClick={() => setShowDeleteAlert(true)}
                     disabled={isDeleting}
                     className="gap-2"
                   >
@@ -682,7 +762,10 @@ export default function ContactsPage() {
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem
-                                  onClick={() => handleToggleSelectContact(contact._id)}
+                                  onClick={() => {
+                                    setDeletingContactId(contact._id);
+                                    setShowDeleteAlert(true);
+                                  }}
                                   className="cursor-pointer text-destructive focus:text-destructive"
                                 >
                                   <Trash2 className="h-4 w-4 mr-2" />
@@ -938,6 +1021,49 @@ export default function ContactsPage() {
           </Form>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog
+        open={showDeleteAlert}
+        onOpenChange={setShowDeleteAlert}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertCircle className="h-5 w-5 text-destructive" />
+              Confirm Deletion
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {deletingContactId
+                ? "Are you sure you want to delete this contact? This action cannot be undone."
+                : `Are you sure you want to delete ${selectedContacts.length} contacts? This action cannot be undone.`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (deletingContactId) {
+                  handleDeleteSingleContact(deletingContactId);
+                  setDeletingContactId(null);
+                } else {
+                  handleDeleteContacts();
+                }
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                <>Delete</>
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -29,7 +29,7 @@ const products = [
       { label: "Call Volume", value: "3x", trend: "up" },
       { label: "Cost Reduction", value: "60%", trend: "down" }
     ],
-    image: "/sales-agent-dashboard.jpg",
+    image: "/demo/sales.png",
     accentColor: "blue",
     lightColor: "#3b82f6",   // Blue-500
     darkColor: "#60a5fa",    // Blue-400
@@ -57,7 +57,7 @@ const products = [
       { label: "Response Time", value: "Instant", trend: "down" },
       { label: "Customer Satisfaction", value: "4.7/5", trend: "up" }
     ],
-    image: "/support-agent-dashboard.jpg",
+    image: "/demo/support.png",
     accentColor: "purple",
     lightColor: "#8b5cf6",   // Purple-500
     darkColor: "#a78bfa",    // Purple-400
@@ -85,7 +85,7 @@ const products = [
       { label: "No-shows", value: "-64%", trend: "down" },
       { label: "Calendar Utilization", value: "+37%", trend: "up" }
     ],
-    image: "/booking-agent-dashboard.jpg",
+    image: "/demo/appointment.png",
     accentColor: "indigo",
     lightColor: "#6366f1",   // Indigo-500
     darkColor: "#818cf8",    // Indigo-400
@@ -113,7 +113,7 @@ const products = [
       { label: "Outreach Capacity", value: "10x", trend: "up" },
       { label: "Cost Per Lead", value: "-72%", trend: "down" }
     ],
-    image: "/outreach-agent-dashboard.jpg",
+    image: "/demo/analytics.png",
     accentColor: "green",
     lightColor: "#10b981",   // Green-500
     darkColor: "#34d399",    // Green-400
@@ -430,9 +430,9 @@ export function ProductShowcase() {
 
           <AnimatePresence mode="wait">
             {products.map((product) => (
-              <TabsContent key={product.id} value={product.id} className="mt-0">
+              <TabsContent key={product.id} value={product.id} className="mt-0 flex justify-center">
                 <motion.div
-                  className="grid md:grid-cols-2 gap-16 items-center"
+                  className="grid md:grid-cols-2 max-w-6xl gap-16 items-center"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
@@ -485,7 +485,6 @@ export function ProductShowcase() {
                         />
                       ))}
                     </ul>
-
                     <div className="grid grid-cols-3 gap-4">
                       {product.stats.map((stat, index) => (
                         <StatCard
@@ -601,7 +600,7 @@ export function ProductShowcase() {
 
         {/* New section: AI capabilities showcase */}
         <motion.div
-          className="mt-32 rounded-3xl overflow-hidden border backdrop-blur-md relative"
+          className="mt-32 rounded-3xl  overflow-hidden border backdrop-blur-md relative"
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}

@@ -18,7 +18,6 @@ export function CTASection() {
         <div className="absolute top-0 right-0 w-3/4 h-full bg-gradient-to-bl from-blue-500/10 via-purple-500/10 to-transparent rounded-[100px] blur-[120px]" />
         <div className="absolute bottom-0 left-0 w-3/4 h-2/3 bg-gradient-to-tr from-violet-600/10 via-indigo-500/10 to-transparent rounded-[100px] blur-[120px]" />
       </div>
-
       <motion.div
         className="container mx-auto relative z-10"
         style={{ opacity, y }}
@@ -36,15 +35,12 @@ export function CTASection() {
                   <PhoneCall className="h-4 w-4" />
                   <span className="text-sm font-medium">Setup in minutes</span>
                 </div>
-
                 <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
                   Experience the Future of <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-violet-400">Voice AI</span>
                 </h2>
-
                 <p className="text-xl text-gray-300 mb-8 leading-relaxed">
                   Join hundreds of forward-thinking companies using our AI voice agents to scale their operations and deliver exceptional experiences.
                 </p>
-
                 <div className="space-y-5 mb-10">
                   <motion.div
                     className="flex items-center gap-3"
@@ -60,7 +56,6 @@ export function CTASection() {
                     </div>
                     <span>14-day free trial, no credit card required</span>
                   </motion.div>
-
                   <motion.div
                     className="flex items-center gap-3"
                     initial={{ opacity: 0, x: -10 }}
@@ -75,7 +70,6 @@ export function CTASection() {
                     </div>
                     <span>Set up in minutes, not days or weeks</span>
                   </motion.div>
-
                   <motion.div
                     className="flex items-center gap-3"
                     initial={{ opacity: 0, x: -10 }}
@@ -91,7 +85,6 @@ export function CTASection() {
                     <span>Cancel anytime with no long-term contracts</span>
                   </motion.div>
                 </div>
-
                 <div className="flex flex-wrap gap-4">
                   <Link href="/signup">
                     <Button size="lg" className="bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 py-6 px-8 rounded-xl text-base font-medium shadow-lg shadow-blue-500/20 transition-all hover:shadow-blue-500/30 group">
@@ -99,32 +92,30 @@ export function CTASection() {
                       <Sparkles className="ml-2 h-4 w-4 transition-transform group-hover:rotate-12" />
                     </Button>
                   </Link>
-                  <Link href="/demo">
+                  {/* <Link href="/demo">
                     <Button variant="outline" size="lg" className="border-gray-500 text-gray-300 hover:bg-white/5 py-6 px-8 rounded-xl backdrop-blur-sm text-base font-medium group">
                       Request Demo
                       <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                     </Button>
-                  </Link>
+                  </Link> */}
                 </div>
               </motion.div>
             </div>
-
             <motion.div
-              className="relative h-full min-h-[500px]"
+              className="relative m-4 h-full rounded-2xl min-h-[500px]"
               initial={{ opacity: 0, scale: 0.95 }}
               whileInView={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, delay: 0.2 }}
               viewport={{ once: true }}
             >
               <Image
-                src="/cta-visual.jpg"
+                src="/demo/insights.png"
                 alt="AI Voice Agent in action"
                 fill
-                className="object-cover"
+                className="object-cover rounded-2xl"
               />
               {/* Add a subtle overlay gradient */}
-              <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent"></div>
-
+              {/* <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent"></div> */}
               {/* Floating elements with glass morphism */}
               <motion.div
                 className="absolute top-8 right-8 bg-black/60 backdrop-blur-xl border border-white/20 p-5 rounded-2xl max-w-[240px]"
@@ -142,7 +133,6 @@ export function CTASection() {
                 </div>
                 <p className="text-sm text-gray-300">Meeting scheduled with prospect for tomorrow at 2 PM</p>
               </motion.div>
-
               <motion.div
                 className="absolute bottom-8 left-8 bg-black/60 backdrop-blur-xl border border-white/20 p-5 rounded-2xl max-w-[240px] hidden md:block"
                 initial={{ opacity: 0, y: 20 }}

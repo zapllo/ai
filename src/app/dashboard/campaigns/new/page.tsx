@@ -349,7 +349,7 @@ export default function NewCampaignPage() {
   return (
     <div className="min-h-screen text-foreground flex">
       <DashboardSidebar />
-      <main className="flex-1 overflow-y-auto bg-background">
+      <main className="flex-1 overflow-y-auto h-fit max-h-screen bg-background">
         <DashboardHeader />
         <div className=" px-4 sm:px-6 py-8 mx-auto ">
           <motion.div
@@ -504,11 +504,11 @@ export default function NewCampaignPage() {
                               onChange={(e) => setSearchTerm(e.target.value)}
                             /> */}
                             <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
+                              {/* <DropdownMenuTrigger asChild>
                                 <Button variant="outline" size="icon">
                                   <Filter className="h-4 w-4" />
                                 </Button>
-                              </DropdownMenuTrigger>
+                              </DropdownMenuTrigger> */}
                               <DropdownMenuContent align="end">
                                 <DropdownMenuLabel>Filter by tag</DropdownMenuLabel>
                                 <DropdownMenuSeparator />
