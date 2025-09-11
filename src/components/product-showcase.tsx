@@ -157,7 +157,7 @@ const AnimatedParticles = ({ color }: { color: string }) => {
             y: `${Math.random() * 100}%`,
           }}
           animate={{
-            y: [0, -window.innerHeight * 1.5],
+            y: [0, -1200], // ✅ Fixed value
             opacity: [0, 0.8, 0.4, 0],
             scale: [0.5, 1.2, 0.8, 0]
           }}
@@ -494,9 +494,9 @@ export function ProductShowcase() {
                   style={
                     product.id === activeTab
                       ? {
-                          background: `linear-gradient(135deg, ${product.accent}, ${product.accent}DD)`,
-                          color: 'white'
-                        }
+                        background: `linear-gradient(135deg, ${product.accent}, ${product.accent}DD)`,
+                        color: 'white'
+                      }
                       : {}
                   }
                 >

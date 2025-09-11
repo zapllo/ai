@@ -79,7 +79,7 @@ const PremiumParticles = () => {
             y: `${Math.random() * 100}%`,
           }}
           animate={{
-            y: [0, -window.innerHeight * 1.2],
+            y: [0, -960], // ✅ Fixed value (800 * 1.2)
             opacity: [0, 0.8, 0.4, 0],
             scale: [0.5, 1.2, 0.8, 0]
           }}

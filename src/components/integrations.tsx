@@ -44,7 +44,7 @@ const CleanParticles = () => {
             y: `${Math.random() * 100}%`,
           }}
           animate={{
-            y: [0, -window.innerHeight],
+            y: [0, -800], // ✅ Fixed value
             opacity: [0, 0.6, 0],
           }}
           transition={{
