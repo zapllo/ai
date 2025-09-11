@@ -28,19 +28,19 @@ const dashboardPreviews = [
   {
     id: "analytics",
     name: "Analytics Dashboard",
-    image: "/dashboard-analytics.png",
+    image: "/ss/1.png",
     description: "Real-time performance insights"
   },
   {
     id: "calls",
     name: "Active Calls",
-    image: "/dashboard-calls.png",
+    image: "/ss/2.png",
     description: "Live call monitoring"
   },
   {
     id: "agents",
     name: "Agent Management",
-    image: "/dashboard-agents.png",
+    image: "/ss/3.png",
     description: "AI agent configuration"
   }
 ];
@@ -55,20 +55,20 @@ const featureCards = [
     color: "#10b981",
     position: { top: "60%", right: "25%" }
   },
-    {
+  {
     title: "Voice Cloning",
     description: "Clone any voice in 30 seconds",
     icon: <Mic className="h-6 w-6" />,
     color: "#3b82f6",
-    position: { top: "55%", right: "10%" }
+    position: { top: "60%", right: "8%" }
   },
-  {
-    title: "25+ Languages",
-    description: "Global voice AI deployment",
-    icon: <Globe className="h-6 w-6" />,
-    color: "#8b5cf6",
-    position: { bottom: "15%", right: "10%" }
-  }
+  // {
+  //   title: "25+ Languages",
+  //   description: "Global voice AI deployment",
+  //   icon: <Globe className="h-6 w-6" />,
+  //   color: "#8b5cf6",
+  //   position: { top: "58%", right: "10%" }
+  // }
 ];
 
 // Premium live demo component
@@ -172,7 +172,7 @@ const DashboardPreview = () => {
   return (
     <div className="relative">
       {/* Dashboard frame */}
-      <div className="relative aspect-[16/12] md:-mt-56 rounded-2xl overflow-hidden border-2 border-white/20 dark:border-white/10 shadow-2xl bg-gray-100 dark:bg-gray-900">
+      <div className="relative aspect-[16/12] z-[0] md:-mt-32 rounded-2xl overflow-hidden border-2 border-white/20 dark:border-white/10 shadow-2xl bg-gray-100 dark:bg-gray-900">
         <AnimatePresence mode="wait">
           <motion.div
             key={activePreview}
@@ -180,13 +180,13 @@ const DashboardPreview = () => {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.5 }}
-            className="absolute inset-0"
+            className="absolute h-full   inset-0"
           >
             <Image
               src={dashboardPreviews[activePreview].image}
               alt={dashboardPreviews[activePreview].name}
               fill
-              className="object-cover"
+              className="object-cover  enter     bg-center"
             />
           </motion.div>
         </AnimatePresence>
@@ -294,17 +294,17 @@ export function HeroSection() {
         />
 
         {/* Floating feature cards */}
-        {featureCards.map((card, index) => (
+        {/* {featureCards.map((card, index) => (
           <motion.div
             key={card.title}
-            className="absolute  hidden xl:block z-20"
+            className="absolute  hidden xl:block z-[1000]"
             style={card.position}
             initial={{ opacity: 0, scale: 0, rotate: -10 }}
             animate={{ opacity: 1, scale: 1, rotate: 0 }}
             transition={{ delay: 1.5 + index * 0.2, duration: 0.6 }}
             whileHover={{ scale: 1.05, rotate: 5 }}
           >
-            <div className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border border-white/40 dark:border-gray-700/40 rounded-2xl p-4 shadow-2xl max-w-[200px]">
+            <div className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border border-white/40 dark:border-gray-700/40 rounded-2xl p-4 z-[100] shadow-2xl max-w-[200px]">
               <div
                 className="p-2 rounded-xl mb-2 w-fit"
                 style={{ backgroundColor: `${card.color}20` }}
@@ -317,7 +317,7 @@ export function HeroSection() {
               <p className="text-xs text-muted-foreground">{card.description}</p>
             </div>
           </motion.div>
-        ))}
+        ))} */}
       </div>
 
       <div className="container mx-auto relative z-20 px-4">

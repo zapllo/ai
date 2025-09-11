@@ -1,272 +1,376 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence, useMotionTemplate, useMotionValue } from "framer-motion";
+import { motion, AnimatePresence, useMotionTemplate, useMotionValue, useScroll, useTransform, useInView } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PhoneCall, Users, Calendar, Briefcase, Award, ArrowRight, Radio, Shield, Zap, MoveRight, Sparkles, CheckCircle, BarChart2, Bot, BrainCircuit, Globe } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import {
+  PhoneCall, Users, Calendar, Target, ArrowRight, Radio,
+  Shield, Zap, Sparkles, CheckCircle, BarChart2, Bot,
+  BrainCircuit, Globe, Crown, TrendingUp, Clock, Award,
+  MessageSquare, Headphones, Star, Play, Volume2,
+  Activity, Brain, Eye, Layers, Mic, Settings, ChevronRight
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/components/theme-provider";
 
-// Define the different AI agent products with enhanced data
+// Enhanced product data
 const products = [
   {
     id: "sales-agent",
-    name: "Sales Qualifier",
-    icon: <Briefcase className="h-6 w-6" />,
-    description: "Convert more leads with AI agents that qualify prospects and book meetings for your sales team.",
+    name: "Revenue Accelerator",
+    tagline: "AI Sales Specialist",
+    category: "Sales Automation",
+    icon: <Target className="h-6 w-6" />,
+    description: "Transform prospects into customers with AI agents that understand buyer psychology and close deals like your top performers.",
+    longDescription: "Our Revenue Accelerator combines advanced sales psychology with real-time market intelligence to guide prospects through your entire funnel. It handles objections, identifies buying signals, and adapts its approach based on prospect behavior.",
     features: [
-      "Pre-qualify leads 24/7",
-      "Book meetings directly in your calendar",
-      "Collect key prospect information",
-      "Route qualified leads to sales reps",
-      "Follow up with leads automatically"
+      "Advanced lead qualification with 96% accuracy",
+      "Dynamic objection handling using proven frameworks",
+      "Real-time CRM integration and pipeline management",
+      "Personalized follow-up sequences based on buyer intent",
+      "Sales psychology and behavioral trigger integration",
+      "Multi-touch campaign orchestration across channels"
     ],
     stats: [
-      { label: "Conversion Rate", value: "+43%", trend: "up" },
-      { label: "Call Volume", value: "3x", trend: "up" },
-      { label: "Cost Reduction", value: "60%", trend: "down" }
+      { label: "Revenue Increase", value: "+267%", trend: "up", icon: <TrendingUp className="h-5 w-5" />, color: "#10b981" },
+      { label: "Conversion Rate", value: "73.4%", trend: "up", icon: <Target className="h-5 w-5" />, color: "#3b82f6" },
+      { label: "Sales Velocity", value: "5.2x", trend: "up", icon: <Zap className="h-5 w-5" />, color: "#f59e0b" }
     ],
     image: "/demo/sales.png",
-    accentColor: "blue",
-    lightColor: "#3b82f6",   // Blue-500
-    darkColor: "#60a5fa",    // Blue-400
-    lightBgClass: "bg-blue-50",
-    darkBgClass: "dark:bg-blue-950/30",
-    lightBorderClass: "border-blue-200",
-    darkBorderClass: "dark:border-blue-800/40",
-    lightTextClass: "text-blue-700",
-    darkTextClass: "dark:text-blue-300"
+    badge: { text: "Most Popular", color: "from-orange-500 to-red-500" },
+    accent: "#3b82f6",
+    testimonial: {
+      quote: "Increased our sales qualified leads by 340% in the first quarter",
+      author: "Sarah Chen",
+      role: "VP Sales, TechCorp"
+    }
   },
   {
     id: "support-agent",
-    name: "Support Center",
-    icon: <PhoneCall className="h-6 w-6" />,
-    description: "Handle customer inquiries 24/7 with AI agents that resolve issues and escalate when needed.",
+    name: "Customer Success Engine",
+    tagline: "AI Support Specialist",
+    category: "Customer Experience",
+    icon: <Headphones className="h-6 w-6" />,
+    description: "Deliver world-class 24/7 customer support with AI agents that resolve complex issues and build lasting customer relationships.",
+    longDescription: "The Customer Success Engine combines deep product knowledge with emotional intelligence to provide personalized support experiences. It learns from every interaction to continuously improve resolution quality.",
     features: [
-      "Answer common questions instantly",
-      "Troubleshoot technical problems",
-      "Process returns and refunds",
-      "Escalate to human agents when needed",
-      "Multilingual support capabilities"
+      "Instant resolution of 91% of customer inquiries",
+      "Multi-channel support across voice, chat, and email",
+      "Advanced sentiment analysis and emotion recognition",
+      "Comprehensive knowledge base with auto-updates",
+      "Seamless escalation to human agents when needed",
+      "Proactive outreach based on usage patterns"
     ],
     stats: [
-      { label: "Resolution Rate", value: "76%", trend: "up" },
-      { label: "Response Time", value: "Instant", trend: "down" },
-      { label: "Customer Satisfaction", value: "4.7/5", trend: "up" }
+      { label: "Resolution Rate", value: "91%", trend: "up", icon: <CheckCircle className="h-5 w-5" />, color: "#10b981" },
+      { label: "Response Time", value: "<2.1s", trend: "down", icon: <Clock className="h-5 w-5" />, color: "#f59e0b" },
+      { label: "CSAT Score", value: "4.9/5", trend: "up", icon: <Star className="h-5 w-5" />, color: "#8b5cf6" }
     ],
     image: "/demo/support.png",
-    accentColor: "purple",
-    lightColor: "#8b5cf6",   // Purple-500
-    darkColor: "#a78bfa",    // Purple-400
-    lightBgClass: "bg-purple-50",
-    darkBgClass: "dark:bg-purple-950/30",
-    lightBorderClass: "border-purple-200",
-    darkBorderClass: "dark:border-purple-800/40",
-    lightTextClass: "text-purple-700",
-    darkTextClass: "dark:text-purple-300"
+    badge: { text: "Enterprise Grade", color: "from-purple-500 to-violet-600" },
+    accent: "#8b5cf6",
+    testimonial: {
+      quote: "Our customer satisfaction scores improved by 47% while reducing support costs",
+      author: "Marcus Johnson",
+      role: "Head of Support, ServiceFirst"
+    }
   },
   {
     id: "booking-agent",
-    name: "Appointment Manager",
+    name: "Appointment Optimizer",
+    tagline: "AI Scheduling Specialist",
+    category: "Productivity",
     icon: <Calendar className="h-6 w-6" />,
-    description: "Reduce no-shows and fill your calendar with AI agents that handle scheduling and reminders.",
+    description: "Maximize calendar efficiency with AI agents that handle complex scheduling, eliminate no-shows, and optimize your team's time.",
+    longDescription: "The Appointment Optimizer uses predictive analytics to prevent no-shows, intelligent scheduling to maximize productivity, and automated preparation to ensure every meeting is valuable.",
     features: [
-      "Schedule appointments 24/7",
-      "Handle rescheduling seamlessly",
-      "Send automated reminders",
-      "Integrate with all major calendars",
-      "Collect pre-appointment information"
+      "Smart calendar optimization with conflict resolution",
+      "Predictive no-show prevention (89% accuracy)",
+      "Automated pre-meeting information collection",
+      "Multi-timezone scheduling with availability sync",
+      "Integration with 50+ calendar and CRM systems",
+      "Dynamic rescheduling with preference learning"
     ],
     stats: [
-      { label: "Scheduling Time", value: "-85%", trend: "down" },
-      { label: "No-shows", value: "-64%", trend: "down" },
-      { label: "Calendar Utilization", value: "+37%", trend: "up" }
+      { label: "Schedule Efficiency", value: "+178%", trend: "up", icon: <Calendar className="h-5 w-5" />, color: "#10b981" },
+      { label: "No-Show Rate", value: "-82%", trend: "down", icon: <Shield className="h-5 w-5" />, color: "#f59e0b" },
+      { label: "Booking Speed", value: "3.7x", trend: "up", icon: <Zap className="h-5 w-5" />, color: "#06b6d4" }
     ],
     image: "/demo/appointment.png",
-    accentColor: "indigo",
-    lightColor: "#6366f1",   // Indigo-500
-    darkColor: "#818cf8",    // Indigo-400
-    lightBgClass: "bg-indigo-50",
-    darkBgClass: "dark:bg-indigo-950/30",
-    lightBorderClass: "border-indigo-200",
-    darkBorderClass: "dark:border-indigo-800/40",
-    lightTextClass: "text-indigo-700",
-    darkTextClass: "dark:text-indigo-300"
+    badge: { text: "Productivity Boost", color: "from-emerald-500 to-teal-600" },
+    accent: "#10b981",
+    testimonial: {
+      quote: "Eliminated scheduling conflicts and increased our team productivity by 156%",
+      author: "Elena Rodriguez",
+      role: "Operations Manager, ConsultPro"
+    }
   },
   {
     id: "outreach-agent",
-    name: "Outreach Pro",
+    name: "Growth Engine Pro",
+    tagline: "AI Outreach Specialist",
+    category: "Lead Generation",
     icon: <Users className="h-6 w-6" />,
-    description: "Proactively reach potential customers with personalized calls that convert at scale.",
+    description: "Scale your outreach with AI agents that build genuine relationships and convert cold prospects into warm opportunities.",
+    longDescription: "Growth Engine Pro transforms cold outreach by leveraging deep prospect research, personalized messaging, and relationship-building techniques that feel authentic and drive meaningful conversations.",
     features: [
-      "Automated outbound calling",
-      "Personalized conversations",
-      "Lead scoring and qualification",
-      "Seamless CRM integration",
-      "Campaign performance analytics"
+      "Hyper-personalized outreach at enterprise scale",
+      "Multi-channel campaign orchestration and optimization",
+      "Real-time conversation adaptation based on responses",
+      "Advanced prospect scoring with buying intent signals",
+      "Seamless handoff to sales with context preservation",
+      "A/B testing and continuous message optimization"
     ],
     stats: [
-      { label: "Contact Rate", value: "+210%", trend: "up" },
-      { label: "Outreach Capacity", value: "10x", trend: "up" },
-      { label: "Cost Per Lead", value: "-72%", trend: "down" }
+      { label: "Outreach Volume", value: "18x", trend: "up", icon: <Users className="h-5 w-5" />, color: "#f43f5e" },
+      { label: "Response Rate", value: "+420%", trend: "up", icon: <MessageSquare className="h-5 w-5" />, color: "#10b981" },
+      { label: "Cost Per Lead", value: "-86%", trend: "down", icon: <BarChart2 className="h-5 w-5" />, color: "#f59e0b" }
     ],
     image: "/demo/analytics.png",
-    accentColor: "green",
-    lightColor: "#10b981",   // Green-500
-    darkColor: "#34d399",    // Green-400
-    lightBgClass: "bg-green-50",
-    darkBgClass: "dark:bg-green-950/30",
-    lightBorderClass: "border-green-200",
-    darkBorderClass: "dark:border-green-800/40",
-    lightTextClass: "text-green-700",
-    darkTextClass: "dark:text-green-300"
+    badge: { text: "Scale Master", color: "from-rose-500 to-pink-600" },
+    accent: "#f43f5e",
+    testimonial: {
+      quote: "Generated 2,400+ qualified leads in 90 days with 67% lower acquisition costs",
+      author: "David Park",
+      role: "Growth Director, ScaleUp Inc"
+    }
   }
 ];
 
-// 3D floating element animation
-const Floating3DElement = ({ accentColor, icon, label, className }: { accentColor: string, icon: React.ReactNode, label: string, className?: string }) => {
+// Premium animated background particles
+const AnimatedParticles = ({ color }: { color: string }) => {
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-60">
+      {[...Array(30)].map((_, i) => (
+        <motion.div
+          key={i}
+          className="absolute rounded-full blur-sm"
+          style={{
+            background: `radial-gradient(circle, ${color}40 0%, transparent 70%)`,
+            width: Math.random() * 8 + 4,
+            height: Math.random() * 8 + 4,
+            x: `${Math.random() * 100}%`,
+            y: `${Math.random() * 100}%`,
+          }}
+          animate={{
+            y: [0, -window.innerHeight * 1.5],
+            opacity: [0, 0.8, 0.4, 0],
+            scale: [0.5, 1.2, 0.8, 0]
+          }}
+          transition={{
+            duration: Math.random() * 20 + 15,
+            repeat: Infinity,
+            delay: Math.random() * 20,
+            ease: "linear"
+          }}
+        />
+      ))}
+    </div>
+  );
+};
+
+// Enhanced feature list component
+const FeatureList = ({ features, color }: { features: string[], color: string }) => (
+  <div className="space-y-3">
+    {features.map((feature, index) => (
+      <motion.div
+        key={index}
+        className="group flex items-start gap-4 p-4 rounded-2xl transition-all duration-300 hover:bg-white/60 dark:hover:bg-gray-800/60 border border-transparent hover:border-white/60 dark:hover:border-gray-700/60 backdrop-blur-sm cursor-default"
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: index * 0.1, duration: 0.5 }}
+        whileHover={{ x: 8, scale: 1.02 }}
+      >
+        <div
+          className="flex-shrink-0 h-8 w-8 rounded-xl border-2 flex items-center justify-center transition-all duration-300 group-hover:scale-110"
+          style={{
+            backgroundColor: `${color}15`,
+            borderColor: `${color}50`,
+          }}
+        >
+          <CheckCircle
+            style={{ color: color }}
+            className="h-5 w-5 transition-all duration-300 group-hover:scale-110"
+          />
+        </div>
+        <span className="text-gray-800 dark:text-gray-200 font-medium leading-relaxed group-hover:text-gray-900 dark:group-hover:text-gray-100 transition-colors">
+          {feature}
+        </span>
+      </motion.div>
+    ))}
+  </div>
+);
+
+// Premium stat cards
+const StatCard = ({ stat, index, delay = 0 }: {
+  stat: { label: string, value: string, trend: string, icon: React.ReactNode, color: string },
+  index: number,
+  delay?: number
+}) => (
+  <motion.div
+    className="group relative overflow-hidden backdrop-blur-xl border-2 rounded-3xl p-6 text-center transition-all duration-500 hover:shadow-2xl cursor-default"
+    style={{
+      background: `linear-gradient(135deg, ${stat.color}12, transparent)`,
+      borderColor: `${stat.color}30`,
+    }}
+    whileHover={{ y: -8, scale: 1.02 }}
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay: delay + index * 0.1, duration: 0.6 }}
+  >
+    <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+
+    <div className="relative z-10">
+      <div className="flex justify-center items-center gap-3 mb-4">
+        <div
+          className="p-3 rounded-2xl transition-all duration-300 group-hover:scale-110"
+          style={{ backgroundColor: `${stat.color}20`, color: stat.color }}
+        >
+          {stat.icon}
+        </div>
+      </div>
+      <p className="text-3xl lg:text-4xl font-bold mb-2" style={{ color: stat.color }}>
+        {stat.value}
+      </p>
+      <p className="text-sm text-gray-600 dark:text-gray-400 font-semibold">
+        {stat.label}
+      </p>
+    </div>
+  </motion.div>
+);
+
+// Image preview with enhanced styling
+const ImagePreview = ({ product }: { product: typeof products[0] }) => {
+  const [imageLoaded, setImageLoaded] = useState(false);
+
   return (
     <motion.div
-      className={cn(
-        "flex items-center gap-2 px-3 py-2 rounded-xl backdrop-blur-xl shadow-lg",
-        "bg-white/90 dark:bg-gray-900/80",
-        "border border-gray-200/70 dark:border-gray-700/40",
-        className
-      )}
-      whileHover={{ scale: 1.05, rotateX: 5, rotateY: 5 }}
-      initial={{ y: 20, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ type: "spring", stiffness: 200, damping: 15 }}
+      className="relative group"
+      initial={{ opacity: 0, scale: 0.95, rotateX: 10 }}
+      animate={{ opacity: 1, scale: 1, rotateX: 0 }}
+      transition={{ duration: 0.8, delay: 0.4 }}
     >
+      {/* Premium glow effect */}
       <div
-        className="rounded-full h-7 w-7 flex items-center justify-center"
+        className="absolute -inset-6 rounded-3xl blur-2xl opacity-30 group-hover:opacity-50 transition-opacity duration-700"
         style={{
-          backgroundColor: `color-mix(in srgb, ${accentColor} 15%, transparent)`,
-          color: accentColor
+          background: `linear-gradient(135deg, ${product.accent}40, ${product.accent}20, transparent)`
         }}
-      >
-        {icon}
+      ></div>
+
+      <div className="relative aspect-[16/10] rounded-3xl overflow-hidden border-2 border-white/20 dark:border-white/10 shadow-2xl backdrop-blur-xl">
+        {/* Image content */}
+        <div className="absolute inset-0">
+          <Image
+            src={product.image}
+            alt={`${product.name} Dashboard`}
+            fill
+            className={cn(
+              "object-cover transition-all duration-700",
+              imageLoaded ? "scale-100 opacity-100" : "scale-110 opacity-0"
+            )}
+            onLoad={() => setImageLoaded(true)}
+          />
+
+          {/* Premium overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/20">
+            {/* Grid pattern overlay */}
+            <div
+              className="absolute inset-0 opacity-20"
+              style={{
+                backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M0 0h60v60H0V0zm30 30h30v30H30V30z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+                backgroundSize: '60px 60px'
+              }}
+            />
+          </div>
+        </div>
+
+        {/* Product badge */}
+        {product.badge && (
+          <motion.div
+            className={cn(
+              "absolute top-6 right-6 px-4 py-2 rounded-full text-white text-sm font-bold shadow-lg backdrop-blur-sm border border-white/20",
+              `bg-gradient-to-r ${product.badge.color}`
+            )}
+            initial={{ opacity: 0, scale: 0, rotate: 10 }}
+            animate={{ opacity: 1, scale: 1, rotate: 0 }}
+            transition={{ delay: 0.8, duration: 0.5 }}
+          >
+            <div className="flex items-center gap-2">
+              <Crown className="h-4 w-4" />
+              {product.badge.text}
+            </div>
+          </motion.div>
+        )}
+
+        {/* Live status indicator */}
+        <div className="absolute bottom-6 left-6 bg-black/80 backdrop-blur-md text-sm px-4 py-3 rounded-2xl text-white border border-white/10 flex items-center gap-3 shadow-xl">
+          <div className="flex items-center gap-2">
+            <div className="relative flex h-3 w-3">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+            </div>
+            <span className="font-medium">Active Agent</span>
+          </div>
+          <div className="w-px h-4 bg-white/20"></div>
+          <Activity className="h-4 w-4 text-green-400" />
+        </div>
+
+        {/* Quick action buttons */}
+        <div className="absolute bottom-6 right-6 flex gap-2">
+          <Link href={`/products/${product.id}`}>
+            <Button
+              size="sm"
+              className="backdrop-blur-md text-white border border-white/30 rounded-xl hover:scale-105 transition-transform"
+              style={{
+                background: `linear-gradient(135deg, ${product.accent}80, ${product.accent}60)`
+              }}
+            >
+              <Settings className="h-4 w-4 mr-2" />
+              Configure
+            </Button>
+          </Link>
+        </div>
       </div>
-      <span className="text-sm font-medium text-gray-800 dark:text-gray-200">{label}</span>
     </motion.div>
   );
 };
 
-// Interactive particle effect component with proper light/dark adaptability
-const ParticleField = ({ color }: { color: string }) => {
-  const { theme } = useTheme();
-  const isDarkTheme = theme === 'dark';
-
-  // Adjust opacity based on theme
-  const particleColor = color;
-  const particleOpacity = isDarkTheme ? "0.3" : "0.15";
-
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {[...Array(40)].map((_, i) => (
-        <motion.div
-          key={i}
-          className="absolute rounded-full"
-          style={{
-            backgroundColor: particleColor,
-            width: Math.random() * 5 + 2,
-            height: Math.random() * 5 + 2,
-            x: `${Math.random() * 100}%`,
-            y: `${Math.random() * 100}%`,
-            opacity: particleOpacity,
-            filter: isDarkTheme ? "blur(0.5px)" : "blur(1px)"
-          }}
-          animate={{
-            y: [null, `-${Math.random() * 300 + 100}px`],
-            opacity: [0, parseFloat(particleOpacity), 0]
-          }}
-          transition={{
-            duration: Math.random() * 20 + 10,
-            repeat: Infinity,
-            delay: Math.random() * 20
-          }}
-        />
-      ))}
-    </div>
-  );
-};
-
-// Sound wave animation component with theme adaptability
-const SoundWave = ({ color = "#60a5fa" }: { color?: string }) => {
-  return (
-    <div className="flex items-center gap-0.5 h-4">
-      {[...Array(4)].map((_, i) => (
-        <motion.div
-          key={i}
-          className="w-0.5 rounded-full"
-          style={{ background: color }}
-          animate={{
-            height: ["30%", "100%", "60%", "90%", "40%"],
-          }}
-          transition={{
-            duration: 1,
-            repeat: Infinity,
-            repeatType: "reverse",
-            delay: i * 0.1,
-          }}
-        />
-      ))}
-    </div>
-  );
-};
-
-// Feature item with theme-adaptive styling
-const FeatureItem = ({ feature, index, color }: { feature: string, index: number, color: string }) => (
-  <motion.li
-    className={cn(
-      "flex items-start gap-3 px-3 py-2 rounded-lg transition-colors",
-      "hover:bg-gray-50 dark:hover:bg-gray-800/30",
-    )}
-    initial={{ opacity: 0, x: -10 }}
-    animate={{ opacity: 1, x: 0 }}
-    transition={{ delay: index * 0.1 }}
-    whileHover={{ x: 5 }}
-  >
-    <div
-      className="h-6 w-6 rounded-full flex items-center justify-center mt-0.5 flex-shrink-0 border"
-      style={{
-        backgroundColor: `color-mix(in srgb, ${color} 10%, transparent)`,
-        borderColor: `color-mix(in srgb, ${color} 30%, transparent)`,
-      }}
-    >
-      <CheckCircle style={{ color: color }} className="h-4 w-4" />
-    </div>
-    <span className="text-gray-800 dark:text-gray-200">{feature}</span>
-  </motion.li>
-);
-
-// Stat card with properly themed styling
-const StatCard = ({ stat, index, color }: { stat: { label: string, value: string, trend: string }, index: number, color: string }) => (
+// Customer testimonial card
+const TestimonialCard = ({ testimonial, delay = 0 }: {
+  testimonial: typeof products[0]['testimonial'],
+  delay?: number
+}) => (
   <motion.div
-    className={cn(
-      "backdrop-blur-sm border rounded-2xl p-4 text-center transition-all",
-      "bg-white/70 dark:bg-gray-900/40",
-      "border-gray-200/50 dark:border-gray-700/30",
-      "shadow-sm hover:shadow-md"
-    )}
-    whileHover={{ y: -5 }}
-    initial={{ opacity: 0, y: 10 }}
+    className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-white/40 dark:border-gray-700/40 rounded-3xl p-8 shadow-xl"
+    initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
-    transition={{ delay: 0.2 + index * 0.1 }}
+    transition={{ delay, duration: 0.6 }}
+    whileHover={{ y: -5, scale: 1.02 }}
   >
-    <div className="flex justify-center items-center gap-1.5 mb-1">
-      <p className="text-2xl font-bold" style={{ color }}>{stat.value}</p>
-      {stat.trend === "up" && <svg className="h-4 w-4 text-green-500 dark:text-green-400" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M7 17L17 7M17 7H8M17 7V16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>}
-      {stat.trend === "down" && <svg className="h-4 w-4 text-green-500 dark:text-green-400" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M17 7L7 17M7 17H16M7 17V8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>}
+    <div className="flex items-center gap-2 mb-6">
+      {[...Array(5)].map((_, i) => (
+        <Star key={i} className="h-5 w-5 text-yellow-500 fill-yellow-500" />
+      ))}
     </div>
-    <p className="text-sm text-gray-500 dark:text-gray-400">{stat.label}</p>
+
+    <blockquote className="text-lg text-gray-800 dark:text-gray-200 mb-6 leading-relaxed font-medium">
+      "{testimonial.quote}"
+    </blockquote>
+
+    <div className="flex items-center gap-4">
+      <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-500 to-violet-500 flex items-center justify-center text-white font-bold text-lg">
+        {testimonial.author.charAt(0)}
+      </div>
+      <div>
+        <p className="font-semibold text-gray-900 dark:text-gray-100">{testimonial.author}</p>
+        <p className="text-sm text-gray-600 dark:text-gray-400">{testimonial.role}</p>
+      </div>
+    </div>
   </motion.div>
 );
 
@@ -274,596 +378,483 @@ export function ProductShowcase() {
   const [activeTab, setActiveTab] = useState("sales-agent");
   const activeProduct = products.find(p => p.id === activeTab) || products[0];
   const { theme } = useTheme();
-  const isDark = theme === 'dark';
   const containerRef = useRef<HTMLDivElement>(null);
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
+  const isInView = useInView(containerRef, { once: true, margin: "-100px" });
 
-  // Handle mouse move for spotlight effect
-  useEffect(() => {
-    const handleMouseMove = (event: MouseEvent) => {
-      if (!containerRef.current) return;
-      const rect = containerRef.current.getBoundingClientRect();
-      mouseX.set(event.clientX - rect.left);
-      mouseY.set(event.clientY - rect.top);
-    };
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "end start"]
+  });
 
-    containerRef.current?.addEventListener('mousemove', handleMouseMove);
-    return () => containerRef.current?.removeEventListener('mousemove', handleMouseMove);
-  }, [mouseX, mouseY]);
-
-  // Create spotlight effect templates
-  const spotlightX = useMotionTemplate`${mouseX}px`;
-  const spotlightY = useMotionTemplate`${mouseY}px`;
-
-  // Determine colors based on the theme
-  const activeColor = isDark ? activeProduct.darkColor : activeProduct.lightColor;
+  const y = useTransform(scrollYProgress, [0, 1], [100, -100]);
 
   return (
     <section
       id="products"
-      className="py-32 relative overflow-hidden"
+      className="py-24 md:py-32 lg:py-40 relative overflow-hidden"
       ref={containerRef}
     >
-      {/* Spotlight effect follows cursor */}
-      <div
-        className="pointer-events-none absolute inset-0 z-0 opacity-0 transition duration-300 lg:opacity-100"
-        style={{
-          background: isDark
-            ? `radial-gradient(500px circle at ${spotlightX} ${spotlightY}, ${activeProduct.darkColor}10, transparent 40%)`
-            : `radial-gradient(500px circle at ${spotlightX} ${spotlightY}, ${activeProduct.lightColor}10, transparent 40%)`
-        }}
-      />
-
-      {/* Enhanced background effects */}
+      {/* Premium background with parallax */}
       <div className="absolute inset-0 z-0">
-        <div className="absolute left-0 w-1/2 h-full bg-gradient-to-r from-blue-500/5 dark:from-blue-500/10 to-transparent rounded-full blur-[150px]" />
-        <div className="absolute right-0 w-1/2 h-full bg-gradient-to-l from-purple-500/5 dark:from-purple-500/10 to-transparent rounded-full blur-[150px]" />
-        <ParticleField color={activeColor} />
+        <motion.div
+          style={{ y }}
+          className="absolute left-0 top-1/4 w-[800px] h-[800px] bg-gradient-to-r from-blue-500/10 via-violet-500/8 to-transparent rounded-full blur-[150px]"
+        />
+        <motion.div
+          style={{ y: useTransform(scrollYProgress, [0, 1], [-50, 50]) }}
+          className="absolute right-0 bottom-1/4 w-[600px] h-[600px] bg-gradient-to-l from-purple-500/10 via-pink-500/8 to-transparent rounded-full blur-[120px]"
+        />
+
+        {/* Animated particles */}
+        <AnimatedParticles color={activeProduct.accent} />
+
+        {/* Grid pattern with mask */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#8882_1px,transparent_1px),linear-gradient(to_bottom,#8882_1px,transparent_1px)] bg-[size:40px_40px] dark:opacity-10 opacity-5 [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_40%,transparent_100%)]"></div>
       </div>
 
-      <div className="container mx-auto relative z-10">
-        <div className="text-center max-w-3xl mx-auto mb-16">
+      <div className="container mx-auto relative z-10 px-4">
+        {/* Premium section header */}
+        <motion.div
+          className="text-center max-w-4xl mx-auto mb-20"
+          initial={{ opacity: 0, y: 30 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.8 }}
+        >
+          {/* Category badge */}
           <motion.div
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full border backdrop-blur-sm mb-6 shadow-sm"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            viewport={{ once: true }}
+            className="inline-flex items-center gap-4 px-8 py-4 rounded-full mb-8 backdrop-blur-xl border-2 shadow-lg"
             style={{
-              backgroundColor: isDark ? "rgba(30, 58, 138, 0.3)" : "rgba(239, 246, 255, 0.8)",
-              borderColor: isDark ? "rgba(37, 99, 235, 0.4)" : "rgba(191, 219, 254, 1)"
+              background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(139, 92, 246, 0.08))',
+              borderColor: 'rgba(59, 130, 246, 0.25)'
             }}
+            whileHover={{ scale: 1.05 }}
           >
-            <Radio className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-            <span className="text-sm font-medium text-blue-700 dark:text-blue-300">Versatile AI Voice Solutions</span>
+            <div className="flex items-center gap-2">
+              <Crown className="h-6 w-6 text-yellow-500" />
+              <span className="text-sm font-bold bg-clip-text text-transparent bg-gradient-to-r from-yellow-600 to-orange-600 dark:from-yellow-400 dark:to-orange-400 uppercase tracking-wide">
+                Enterprise AI Solutions
+              </span>
+            </div>
+            <div className="w-px h-6 bg-gradient-to-b from-blue-500 to-violet-500"></div>
+            <div className="flex items-center gap-2">
+              <Radio className="h-5 w-5 text-blue-600 dark:text-blue-400 animate-pulse" />
+              <span className="text-sm font-bold text-blue-700 dark:text-blue-300">
+                Choose Your Specialist
+              </span>
+            </div>
           </motion.div>
 
+          {/* Main heading */}
           <motion.h2
-            className="text-4xl font-bold mb-6"
+            className="text-4xl md:text-5xl lg:text-7xl font-bold mb-8 leading-[1.1]"
             initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            viewport={{ once: true }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-violet-600 dark:from-blue-400 dark:to-violet-400">
-              One Platform
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-violet-600 to-purple-600 dark:from-blue-400 dark:via-violet-400 dark:to-purple-400">
+              AI Agents That
             </span>
-            {" "}
-            <span className="text-gray-800 dark:text-white">Multiple AI Agents</span>
+            <br />
+            <span className="text-gray-900 dark:text-white">Actually Work</span>
           </motion.h2>
 
+          {/* Description */}
           <motion.p
-            className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed"
+            className="text-xl lg:text-2xl text-muted-foreground leading-relaxed font-medium max-w-3xl mx-auto"
             initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            viewport={{ once: true }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.8, delay: 0.4 }}
           >
-            Choose the AI voice agents that match your business needs or combine them for a complete solution.
+            Deploy specialized AI voice agents that deliver measurable results.
+            Each agent is trained for specific use cases with <span className="text-blue-600 dark:text-blue-400 font-semibold">enterprise-grade performance</span> and <span className="text-violet-600 dark:text-violet-400 font-semibold">human-like intelligence</span>.
           </motion.p>
-        </div>
+        </motion.div>
 
         <Tabs
-          defaultValue="sales-agent"
-          className="w-full"
+          value={activeTab}
           onValueChange={setActiveTab}
+          className="w-full"
         >
-          <div className="relative flex justify-center mb-16">
-            {/* Animated highlight background that follows active tab */}
-            <div className="absolute inset-0 flex justify-center">
-              <motion.div
-                className="absolute h-full top-0 rounded-full blur-md"
-                animate={{
-                  left: `calc(${products.findIndex(p => p.id === activeTab) * 25}% - 2%)`,
-                  width: '27%'
-                }}
-                transition={{ duration: 0.5 }}
-                style={{
-                  background: isDark
-                    ? `linear-gradient(to right, ${activeProduct.darkColor}20, ${products.find(p => p.id === "support-agent")?.darkColor}20)`
-                    : `linear-gradient(to right, ${activeProduct.lightColor}10, ${products.find(p => p.id === "support-agent")?.lightColor}10)`
-                }}
-              />
-            </div>
-
-            <TabsList
-              className="p-1.5 rounded-2xl backdrop-blur-sm flex-wrap shadow-lg relative z-10 border"
-              style={{
-                backgroundColor: isDark ? "rgba(17, 24, 39, 0.4)" : "rgba(255, 255, 255, 0.4)",
-                borderColor: isDark ? "rgba(75, 85, 99, 0.3)" : "rgba(229, 231, 235, 0.5)"
-              }}
-            >
+          {/* Fixed tab navigation */}
+          <motion.div
+            className="relative flex justify-center mb-24"
+            initial={{ opacity: 0, y: 20 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.6 }}
+          >
+            <TabsList className="hidden md:inline-flex h-auto p-2 bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl rounded-3xl border-2 border-white/20 dark:border-gray-700/20 shadow-2xl">
               {products.map((product) => (
                 <TabsTrigger
                   key={product.id}
                   value={product.id}
                   className={cn(
-                    "data-[state=active]:text-white px-6 py-3 rounded-xl",
-                    "text-gray-700 dark:text-gray-300"
+                    "flex flex-col items-center gap-3 px-6 py-4 rounded-2xl transition-all duration-500 min-w-[140px] md:min-w-[160px] data-[state=active]:shadow-lg",
+                    "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
                   )}
                   style={
                     product.id === activeTab
-                      ? { background: `linear-gradient(to right, ${product.lightColor}, #8b5cf6)` }
+                      ? {
+                          background: `linear-gradient(135deg, ${product.accent}, ${product.accent}DD)`,
+                          color: 'white'
+                        }
                       : {}
                   }
                 >
-                  <div className="flex items-center gap-2">
-                    <div
-                      className="p-1.5 rounded-full flex items-center justify-center"
-                      style={{
-                        backgroundColor: product.id === activeTab
-                          ? "rgba(255, 255, 255, 0.2)"
-                          : isDark
-                            ? `rgba(${product.accentColor === 'blue' ? '59, 130, 246' : product.accentColor === 'purple' ? '139, 92, 246' : product.accentColor === 'indigo' ? '99, 102, 241' : '34, 197, 94'}, 0.2)`
-                            : `rgba(${product.accentColor === 'blue' ? '59, 130, 246' : product.accentColor === 'purple' ? '139, 92, 246' : product.accentColor === 'indigo' ? '99, 102, 241' : '34, 197, 94'}, 0.1)`
-                      }}
-                    >
+                  <div
+                    className={cn(
+                      "p-3 rounded-2xl transition-all duration-300",
+                      product.id === activeTab
+                        ? "bg-white/20 shadow-lg"
+                        : "bg-gray-100 dark:bg-gray-800"
+                    )}
+                  >
+                    <div className={product.id === activeTab ? "text-white" : ""} style={product.id !== activeTab ? { color: product.accent } : {}}>
                       {product.icon}
                     </div>
-                    <span className="hidden md:inline">{product.name}</span>
+                  </div>
+                  <div className="text-center">
+                    <div className="font-bold text-sm">{product.name}</div>
+                    <div className="text-xs opacity-75 mt-1">{product.tagline}</div>
                   </div>
                 </TabsTrigger>
               ))}
             </TabsList>
-          </div>
+          </motion.div>
 
+          {/* Product content */}
           <AnimatePresence mode="wait">
             {products.map((product) => (
-              <TabsContent key={product.id} value={product.id} className="mt-0 flex justify-center">
+              <TabsContent key={product.id} value={product.id} className="mt-0">
                 <motion.div
-                  className="grid md:grid-cols-2 max-w-6xl gap-16 items-center"
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.5 }}
+                  exit={{ opacity: 0, y: -30 }}
+                  transition={{ duration: 0.8 }}
+                  className="grid lg:grid-cols-2 gap-16 xl:gap-24 items-start max-w-7xl mx-auto"
                 >
-                  <div className="space-y-8">
+                  {/* Left content */}
+                  <div className="space-y-10">
+                    {/* Product header */}
                     <motion.div
-                      className={cn(
-                        "inline-flex items-center gap-2 px-4 py-2 rounded-full border backdrop-blur-sm",
-                        product.lightBgClass, product.darkBgClass,
-                        product.lightBorderClass, product.darkBorderClass,
-                        product.lightTextClass, product.darkTextClass
-                      )}
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.3 }}
+                      className="space-y-6"
+                      initial={{ opacity: 0, x: -30 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.2, duration: 0.6 }}
                     >
-                      {product.icon}
-                      <span className="text-sm font-medium">{product.name}</span>
+                      {/* Category and badge */}
+                      <div className="flex items-center gap-4 flex-wrap">
+                        <div
+                          className="inline-flex items-center gap-3 px-5 py-2 rounded-2xl border-2 backdrop-blur-sm text-sm font-bold"
+                          style={{
+                            backgroundColor: `${product.accent}12`,
+                            borderColor: `${product.accent}30`,
+                            color: product.accent
+                          }}
+                        >
+                          {product.icon}
+                          <span>{product.category}</span>
+                        </div>
+
+                        {product.badge && (
+                          <Badge
+                            className={cn(
+                              "px-4 py-2 text-white font-bold border-0 shadow-lg",
+                              `bg-gradient-to-r ${product.badge.color}`
+                            )}
+                          >
+                            <Crown className="h-3 w-3 mr-1" />
+                            {product.badge.text}
+                          </Badge>
+                        )}
+                      </div>
+
+                      {/* Title */}
+                      <h3 className="text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 dark:text-white leading-tight">
+                        Meet Your{" "}
+                        <span
+                          className="bg-clip-text text-transparent"
+                          style={{ backgroundImage: `linear-gradient(135deg, ${product.accent}, ${product.accent}AA)` }}
+                        >
+                          {product.name}
+                        </span>
+                      </h3>
+
+                      {/* Description */}
+                      <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
+                        {product.description}
+                      </p>
+
+                      {/* Long description */}
+                      <p className="text-gray-500 dark:text-gray-400 leading-relaxed">
+                        {product.longDescription}
+                      </p>
                     </motion.div>
 
-                    <motion.h3
-                      className="text-3xl font-bold text-gray-900 dark:text-white"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3, delay: 0.1 }}
+                    {/* Features list */}
+                    <motion.div
+                      className="space-y-4"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.4, duration: 0.6 }}
                     >
-                      Transform your {product.id.split('-')[0]} process with{" "}
-                      <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-violet-600 dark:from-blue-400 dark:to-violet-400">
-                        AI Voice
-                      </span>
-                    </motion.h3>
+                      <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+                        <Sparkles className="h-5 w-5" style={{ color: product.accent }} />
+                        Key Capabilities
+                      </h4>
+                      <FeatureList features={product.features} color={product.accent} />
+                    </motion.div>
 
-                    <motion.p
-                      className="text-lg text-gray-600 dark:text-gray-300 leading-relaxed"
-                      initial={{ opacity: 0, y: 10 }}
+                    {/* Stats grid */}
+                    <motion.div
+                      className="grid grid-cols-1 sm:grid-cols-3 gap-6"
+                      initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3, delay: 0.2 }}
+                      transition={{ delay: 0.6, duration: 0.6 }}
                     >
-                      {product.description}
-                    </motion.p>
-
-                    <ul className="space-y-1">
-                      {product.features.map((feature, index) => (
-                        <FeatureItem
-                          key={index}
-                          feature={feature}
-                          index={index}
-                          color={isDark ? product.darkColor : product.lightColor}
-                        />
-                      ))}
-                    </ul>
-                    <div className="grid grid-cols-3 gap-4">
                       {product.stats.map((stat, index) => (
                         <StatCard
                           key={index}
                           stat={stat}
                           index={index}
-                          color={isDark ? product.darkColor : product.lightColor}
+                          delay={0.8}
                         />
                       ))}
-                    </div>
+                    </motion.div>
 
-                    <div className="flex gap-4 pt-2">
-                      <Link href={`/products/${product.id}`}>
+                    {/* CTA buttons */}
+                    <motion.div
+                      className="flex flex-col sm:flex-row gap-4 pt-4"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 1, duration: 0.6 }}
+                    >
+                      <Link href={`/register`}>
                         <Button
-                          className="rounded-xl px-6 py-6 text-base shadow-lg group text-white"
+                          size="lg"
+                          className="group relative overflow-hidden font-bold py-6 px-8 rounded-2xl text-white border-0 shadow-2xl transition-all duration-500 hover:scale-105"
                           style={{
-                            background: `linear-gradient(to right, ${isDark ? product.darkColor : product.lightColor}, #8b5cf6)`,
-                            boxShadow: `0 10px 15px -3px ${isDark ? product.darkColor : product.lightColor}15, 0 4px 6px -4px ${isDark ? product.darkColor : product.lightColor}20`
+                            background: `linear-gradient(135deg, ${product.accent}, ${product.accent}CC)`,
+                            boxShadow: `0 10px 30px -5px ${product.accent}40`
                           }}
                         >
-                          <span>Try {product.name}</span>
-                          <Zap className="ml-2 h-4 w-4 group-hover:rotate-12 transition-transform" />
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+                          <div className="relative flex items-center gap-3">
+                            <Zap className="h-5 w-5 transition-transform group-hover:rotate-12" />
+                            <span>Deploy {product.name}</span>
+                            <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+                          </div>
                         </Button>
                       </Link>
-                      <Link href={`/docs/${product.id}`}>
+
+                      <Link href={`/demo`}>
                         <Button
                           variant="outline"
-                          className="border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800/50 rounded-xl px-6 py-6 text-base backdrop-blur-sm group"
-                        >
-                          Learn More
-                          <MoveRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                        </Button>
-                      </Link>
-                    </div>
-                  </div>
-
-                  <motion.div
-                    className="relative"
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.5, delay: 0.3 }}
-                  >
-                    {/* Glowing effect around the image with proper theme colors */}
-                    <div
-                      className="absolute -inset-1 rounded-3xl blur-lg opacity-70"
-                      style={{
-                        background: isDark
-                          ? `linear-gradient(to right, ${product.darkColor}30, #8b5cf640)`
-                          : `linear-gradient(to right, ${product.lightColor}30, #8b5cf640)`
-                      }}
-                    ></div>
-
-                    <div className="relative aspect-video rounded-3xl overflow-hidden shadow-2xl z-10">
-                      {/* Adaptive border color based on theme */}
-                      <div className="absolute inset-0 border-2 rounded-3xl z-20 pointer-events-none"
-                           style={{
-                             borderColor: isDark ? "rgba(55, 65, 81, 0.5)" : "rgba(255, 255, 255, 0.2)"
-                           }}></div>
-
-                      <Image
-                        src={product.image}
-                        alt={`${product.name} dashboard`}
-                        fill
-                        className="object-cover"
-                      />
-
-                      {/* Overlay with noise texture and gradient */}
-                      <div
-                        className="absolute inset-0 mix-blend-overlay"
-                        style={{
-                          background: isDark
-                            ? "linear-gradient(to top, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.2))"
-                            : "linear-gradient(to top, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.1))"
-                        }}
-                      ></div>
-                      <div className="absolute inset-0 opacity-20 dark:opacity-30"
-                          style={{ backgroundImage: 'url("/noise.png")', backgroundRepeat: 'repeat' }}></div>
-
-                      {/* Floating badge */}
-                      {product.id === "sales-agent" && (
-                        <div
-                          className="absolute top-4 right-4 text-white text-sm px-3 py-1.5 rounded-full font-medium flex items-center gap-1.5 backdrop-blur-sm shadow-lg"
+                          size="lg"
+                          className="group border-2 font-bold py-6 px-8 rounded-2xl transition-all duration-500 hover:scale-105 backdrop-blur-sm"
                           style={{
-                            backgroundColor: isDark ? "rgba(34, 197, 94, 0.9)" : "rgba(22, 163, 74, 0.9)"
+                            borderColor: `${product.accent}40`,
+                            color: product.accent,
+                            background: `${product.accent}05`
                           }}
                         >
-                          <Award className="h-4 w-4" />
-                          <span>Most Popular</span>
-                        </div>
-                      )}
+                          <div className="flex items-center gap-3">
+                            <Play className="h-5 w-5 transition-transform group-hover:scale-110" />
+                            <span>Watch Demo</span>
+                            <ChevronRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+                          </div>
+                        </Button>
+                      </Link>
+                    </motion.div>
+                  </div>
 
-                      {/* Status indicator with proper theme colors */}
-                      <div className="absolute bottom-4 left-4 bg-black/60 dark:bg-black/80 backdrop-blur-md text-sm px-4 py-3 rounded-xl font-medium flex items-center gap-3 border shadow-lg"
-                           style={{
-                             borderColor: isDark ? "rgba(255, 255, 255, 0.05)" : "rgba(255, 255, 255, 0.1)"
-                           }}>
-                        <div className="relative flex h-3 w-3">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 dark:bg-blue-500 opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-3 w-3 bg-blue-500 dark:bg-blue-600"></span>
-                        </div>
-                        <span className="text-white">Active Agent</span>
-                        <SoundWave color={isDark ? "#60a5fa" : "#3b82f6"} />
-                      </div>
-                    </div>
-
-
-                  </motion.div>
+                  {/* Right side - Image Preview */}
+                  <div className="relative">
+                    <ImagePreview product={product} />
+                  </div>
                 </motion.div>
+
+                {/* Customer testimonial section */}
+                {/* <motion.div
+                  className="mt-24 max-w-4xl mx-auto"
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1.2, duration: 0.8 }}
+                >
+                  <div className="text-center mb-12">
+                    <h4 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+                      What Our Customers Say
+                    </h4>
+                    <p className="text-gray-600 dark:text-gray-400">
+                      Real results from companies using {product.name}
+                    </p>
+                  </div>
+
+                  <TestimonialCard testimonial={product.testimonial} delay={1.4} />
+                </motion.div> */}
               </TabsContent>
             ))}
           </AnimatePresence>
         </Tabs>
 
-        {/* New section: AI capabilities showcase */}
+        {/* Bottom CTA section */}
         <motion.div
-          className="mt-32 rounded-3xl  overflow-hidden border backdrop-blur-md relative"
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
-          viewport={{ once: true }}
-          style={{
-            backgroundColor: isDark ? "rgba(17, 24, 39, 0.4)" : "rgba(255, 255, 255, 0.6)",
-            borderColor: isDark ? "rgba(75, 85, 99, 0.3)" : "rgba(229, 231, 235, 0.8)"
-          }}
+          className="mt-32 text-center"
+          initial={{ opacity: 0, y: 30 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.8, delay: 1.6 }}
         >
-          <div className="absolute inset-0 z-0">
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:24px_24px] dark:opacity-20 opacity-10"></div>
-            <div className="absolute -top-24 -right-20 w-64 h-64 bg-blue-500/10 dark:bg-blue-500/20 rounded-full blur-[80px]"></div>
-            <div className="absolute -bottom-32 -left-20 w-64 h-64 bg-purple-500/10 dark:bg-purple-500/20 rounded-full blur-[80px]"></div>
-          </div>
+          <div
+            className="relative rounded-3xl p-12 lg:p-16 backdrop-blur-xl border-2 shadow-2xl overflow-hidden"
+            style={{
+              background: `linear-gradient(135deg, ${activeProduct.accent}08, transparent)`,
+              borderColor: `${activeProduct.accent}20`
+            }}
+          >
+            {/* Animated background */}
+            <div className="absolute inset-0 opacity-30">
+              <AnimatedParticles color={activeProduct.accent} />
+            </div>
 
-          <div className="grid md:grid-cols-2 gap-8 p-8 md:p-10 relative z-10">
-            <div className="space-y-6">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-sm"
-                   style={{
-                     backgroundColor: isDark ? "rgba(30, 58, 138, 0.3)" : "rgba(239, 246, 255, 0.8)",
-                     borderColor: isDark ? "rgba(37, 99, 235, 0.4)" : "rgba(191, 219, 254, 1)",
-                     color: isDark ? "rgb(147, 197, 253)" : "rgb(29, 78, 216)"
-                   }}>
-                <Sparkles className="h-3.5 w-3.5" />
-                <span>AI Core Technology</span>
+            <div className="relative z-10 max-w-3xl mx-auto space-y-8">
+              <div className="flex justify-center mb-8">
+                <div
+                  className="p-6 rounded-full border-2 shadow-lg"
+                  style={{
+                    backgroundColor: `${activeProduct.accent}15`,
+                    borderColor: `${activeProduct.accent}30`
+                  }}
+                >
+                  <Sparkles className="h-12 w-12" style={{ color: activeProduct.accent }} />
+                </div>
               </div>
 
-              <h3 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
-                Powered by Advanced{" "}
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-violet-600 dark:from-blue-400 dark:to-violet-400">
-                  Conversational AI
-                </span>
+              <h3 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-6">
+                Ready to Transform Your Business?
               </h3>
 
-              <p className="text-gray-600 dark:text-gray-300">
-                Our AI voice agents leverage state-of-the-art natural language processing and emotional intelligence to create human-like conversations that build rapport and drive results.
+              <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed mb-10">
+                Join 500+ companies using our AI voice agents to automate conversations,
+                increase conversions, and scale their operations without limits.
               </p>
 
-              <div className="grid grid-cols-2 gap-4 pt-4">
-                {[
-                  {
-                    title: "Natural Language",
-                    description: "Understands context, nuance, and industry-specific terminology",
-                    icon: <Bot className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                  },
-                  {
-                    title: "Accent Detection",
-                    description: "Adapts to caller accents and speech patterns in real-time",
-                    icon: <Globe className="h-5 w-5 text-violet-600 dark:text-violet-400" />
-                  },
-                  {
-                    title: "Emotional IQ",
-                    description: "Detects and responds to customer emotions appropriately",
-                    icon: <BrainCircuit className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                  },
-                  {
-                    title: "Continuous Learning",
-                    description: "Improves with every conversation via machine learning",
-                    icon: <BarChart2 className="h-5 w-5 text-green-600 dark:text-green-400" />
-                  }
-                ].map((item, i) => (
-                  <motion.div
-                    key={i}
-                    className="p-4 rounded-xl border"
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.1, duration: 0.5 }}
-                    viewport={{ once: true }}
-                    whileHover={{ y: -5 }}
-                    style={{
-                      backgroundColor: isDark ? "rgba(31, 41, 55, 0.5)" : "rgba(255, 255, 255, 0.8)",
-                      borderColor: isDark ? "rgba(75, 85, 99, 0.3)" : "rgba(229, 231, 235, 0.8)"
-                    }}
+              <div className="flex flex-col sm:flex-row gap-6 justify-center">
+                <Link href="/register">
+                  <Button
+                    size="lg"
+                    className="group relative overflow-hidden bg-gradient-to-r from-blue-600 via-violet-600 to-purple-600 hover:from-blue-500 hover:via-violet-500 hover:to-purple-500 text-white font-bold py-6 px-10 rounded-2xl shadow-2xl shadow-blue-500/30 transition-all duration-500 hover:scale-105"
                   >
-                    <div className="flex items-start gap-3">
-                      <div className="p-2 rounded-lg"
-                           style={{
-                             backgroundColor: isDark ? "rgba(59, 130, 246, 0.1)" : "rgba(239, 246, 255, 0.8)",
-                           }}>
-                        {item.icon}
-                      </div>
-                      <div>
-                        <h4 className="font-medium text-gray-900 dark:text-white">{item.title}</h4>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{item.description}</p>
-                      </div>
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+                    <div className="relative flex items-center gap-3">
+                      <Crown className="h-6 w-6" />
+                      <span>Start Free Trial</span>
+                      <Sparkles className="h-5 w-5 transition-transform group-hover:rotate-12" />
                     </div>
-                  </motion.div>
-                ))}
+                  </Button>
+                </Link>
+
+                <Link href="https://zapllo.com/contact">
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 font-bold py-6 px-10 rounded-2xl backdrop-blur-sm transition-all duration-500 hover:scale-105"
+                  >
+                    <div className="flex items-center gap-3">
+                      <MessageSquare className="h-5 w-5" />
+                      <span>Talk to Expert</span>
+                      <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+                    </div>
+                  </Button>
+                </Link>
               </div>
             </div>
+          </div>
+        </motion.div>
 
-            <div className="relative h-[300px] md:h-auto">
-              {/* Futuristic code visualization */}
+        {/* Technology showcase */}
+        <motion.div
+          className="mt-32"
+          initial={{ opacity: 0, y: 40 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.8, delay: 1.8 }}
+        >
+          <div className="text-center mb-16">
+            <h3 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-6">
+              Powered by Advanced{" "}
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-violet-600 dark:from-blue-400 dark:to-violet-400">
+                AI Technology
+              </span>
+            </h3>
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+              Our AI agents leverage cutting-edge natural language processing,
+              emotional intelligence, and machine learning to deliver human-like conversations.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {[
+              {
+                icon: <Brain className="h-8 w-8" />,
+                title: "Neural Language Models",
+                description: "Advanced GPT-4 based language understanding with context awareness",
+                color: "#3b82f6"
+              },
+              {
+                icon: <Volume2 className="h-8 w-8" />,
+                title: "Natural Voice Synthesis",
+                description: "Lifelike voice generation with emotion and accent adaptation",
+                color: "#10b981"
+              },
+              {
+                icon: <Activity className="h-8 w-8" />,
+                title: "Real-time Processing",
+                description: "Sub-second response times with continuous conversation flow",
+                color: "#f59e0b"
+              },
+              {
+                icon: <Shield className="h-8 w-8" />,
+                title: "Enterprise Security",
+                description: "SOC 2 compliant with end-to-end encryption and data protection",
+                color: "#8b5cf6"
+              }
+            ].map((tech, index) => (
               <motion.div
-                className="absolute top-0 right-0 bottom-0 left-0 md:right-10 md:left-10 rounded-xl overflow-hidden border shadow-lg"
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.6, delay: 0.3 }}
-                viewport={{ once: true }}
+                key={tech.title}
+                className="group relative p-8 rounded-3xl backdrop-blur-xl border-2 transition-all duration-500 hover:scale-105 cursor-default"
                 style={{
-                  backgroundColor: isDark ? "rgba(17, 24, 39, 0.9)" : "rgba(15, 23, 42, 0.95)",
-                  borderColor: isDark ? "rgba(55, 65, 81, 0.5)" : "rgba(31, 41, 55, 0.5)"
+                  background: `linear-gradient(135deg, ${tech.color}08, transparent)`,
+                  borderColor: `${tech.color}20`
                 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 2 + index * 0.1, duration: 0.6 }}
+                whileHover={{ y: -10 }}
               >
-                <div className="flex h-9 items-center gap-2 border-b px-4"
-                     style={{
-                       borderColor: isDark ? "rgba(55, 65, 81, 0.5)" : "rgba(31, 41, 55, 0.5)"
-                     }}>
-                  <div className="flex gap-1.5">
-                    <div className="h-3 w-3 rounded-full bg-red-500"></div>
-                    <div className="h-3 w-3 rounded-full bg-yellow-500"></div>
-                    <div className="h-3 w-3 rounded-full bg-green-500"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl"></div>
+
+                <div className="relative z-10 text-center space-y-4">
+                  <div
+                    className="inline-flex p-4 rounded-2xl transition-all duration-300 group-hover:scale-110"
+                    style={{
+                      backgroundColor: `${tech.color}15`,
+                      color: tech.color
+                    }}
+                  >
+                    {tech.icon}
                   </div>
-                  <div className="flex-1 text-center">
-                    <p className="text-xs text-gray-400">ai-voice-agent.js</p>
-                  </div>
-                </div>
 
-                <div className="p-4 font-mono text-sm">
-                  <CodeAnimation />
-                </div>
-              </motion.div>
+                  <h4 className="text-lg font-bold text-gray-900 dark:text-white">
+                    {tech.title}
+                  </h4>
 
-              {/* Floating elements for visual appeal */}
-              <motion.div
-                className="absolute -top-5 -right-5 md:-right-10 h-20 w-20 md:h-28 md:w-28 rounded-full"
-                initial={{ opacity: 0, scale: 0 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, type: "spring", stiffness: 200, delay: 0.5 }}
-                viewport={{ once: true }}
-                style={{
-                  background: isDark
-                    ? "conic-gradient(from 180deg at 50% 50%, #3b82f680 0deg, #8b5cf680 180deg, #10b98180 360deg)"
-                    : "conic-gradient(from 180deg at 50% 50%, #3b82f650 0deg, #8b5cf650 180deg, #10b98150 360deg)"
-                }}
-              >
-                <div className="absolute inset-1 rounded-full backdrop-blur-sm flex items-center justify-center"
-                     style={{
-                       backgroundColor: isDark ? "rgba(17, 24, 39, 0.7)" : "rgba(255, 255, 255, 0.7)"
-                     }}>
-                  <BrainCircuit className="h-10 w-10 text-violet-500 dark:text-violet-400" />
+                  <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                    {tech.description}
+                  </p>
                 </div>
               </motion.div>
-
-              <motion.div
-                className="absolute bottom-0 -left-5 md:-left-10 h-16 w-16 md:h-24 md:w-24 rounded-lg"
-                initial={{ opacity: 0, scale: 0, rotate: -10 }}
-                whileInView={{ opacity: 1, scale: 1, rotate: -10 }}
-                transition={{ duration: 0.5, type: "spring", stiffness: 200, delay: 0.7 }}
-                viewport={{ once: true }}
-                style={{
-                  backgroundColor: isDark ? "rgba(17, 24, 39, 0.7)" : "rgba(255, 255, 255, 0.7)",
-                  borderWidth: 1,
-                  borderColor: isDark ? "rgba(75, 85, 99, 0.3)" : "rgba(229, 231, 235, 0.8)"
-                }}
-
-              >
-                <Radio className="h-8 w-8 text-blue-500 dark:text-blue-400" />
-              </motion.div>
-            </div>
+            ))}
           </div>
         </motion.div>
       </div>
     </section>
   );
 }
-
-// Animated code typing effect component
-const CodeAnimation = () => {
-  const [text, setText] = useState('');
-  const { theme } = useTheme();
-  const isDark = theme === 'dark';
-
-  const codeSnippet = `class AIVoiceAgent {
-  constructor() {
-    this.naturalLanguage = new NLP();
-    this.emotionalIQ = new EmotionDetection();
-    this.voiceSynthesis = new VoiceModel();
-    this.learningModel = new MachineLearning();
-  }
-
-  async handleCall(customerData) {
-    // Initialize conversation
-    await this.voiceSynthesis.speak(
-      this.generateGreeting(customerData)
-    );
-
-    // Active listening loop
-    while(this.conversation.active) {
-      const response = await this.naturalLanguage
-        .process(this.listener.getCurrentInput());
-
-      const emotion = this.emotionalIQ
-        .analyze(response);
-
-      await this.voiceSynthesis.speak(
-        this.generateResponse(response, emotion)
-      );
-
-      // Update learning model
-      this.learningModel.update(response, emotion);
-    }
-  }
-}`;
-
-  useEffect(() => {
-    let i = 0;
-    const typing = setInterval(() => {
-      if (i < codeSnippet.length) {
-        setText(codeSnippet.slice(0, i+1));
-        i++;
-      } else {
-        clearInterval(typing);
-      }
-    }, 30);
-
-    return () => clearInterval(typing);
-  }, [codeSnippet]);
-
-  // Function to add syntax highlighting
-  const highlightCode = (code: string) => {
-    // Simple highlighting, could be more sophisticated
-    const keywords = ['class', 'constructor', 'new', 'this', 'const', 'async', 'await', 'while'];
-    const methods = ['handleCall', 'speak', 'process', 'analyze', 'generateGreeting', 'generateResponse', 'update'];
-    const properties = ['naturalLanguage', 'emotionalIQ', 'voiceSynthesis', 'learningModel', 'conversation', 'active', 'listener'];
-    const strings = ['"', "'"];
-    const comments = ['// Initialize conversation', '// Active listening loop', '// Update learning model'];
-
-    let highlightedCode = code;
-
-    // Highlight keywords
-    keywords.forEach(keyword => {
-      const regex = new RegExp(`\\b${keyword}\\b`, 'g');
-      highlightedCode = highlightedCode.replace(regex, `<span style="color: ${isDark ? '#ff79c6' : '#d946ef'}">${keyword}</span>`);
-    });
-
-    // Highlight methods
-    methods.forEach(method => {
-      const regex = new RegExp(`\\b${method}\\b`, 'g');
-      highlightedCode = highlightedCode.replace(regex, `<span style="color: ${isDark ? '#50fa7b' : '#10b981'}">${method}</span>`);
-    });
-
-    // Highlight properties
-    properties.forEach(prop => {
-      const regex = new RegExp(`\\b${prop}\\b`, 'g');
-      highlightedCode = highlightedCode.replace(regex, `<span style="color: ${isDark ? '#8be9fd' : '#3b82f6'}">${prop}</span>`);
-    });
-
-    // Highlight comments
-    comments.forEach(comment => {
-      highlightedCode = highlightedCode.replace(comment, `<span style="color: ${isDark ? '#6272a4' : '#6b7280'}">${comment}</span>`);
-    });
-
-    return highlightedCode;
-  };
-
-  return (
-    <div className="text-green-400 dark:text-green-300 whitespace-pre-wrap overflow-auto max-h-[calc(100%-2.25rem)]">
-      <div dangerouslySetInnerHTML={{ __html: highlightCode(text) }} />
-      <motion.span
-        animate={{ opacity: [0, 1] }}
-        transition={{ duration: 0.8, repeat: Infinity, repeatType: "reverse" }}
-      >▋</motion.span>
-    </div>
-  );
-};
