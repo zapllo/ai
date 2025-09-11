@@ -168,7 +168,7 @@ export default function RegisterPage() {
         <div className="absolute bottom-1/3 right-1/3 w-[300px] h-[300px] bg-blue-500/5 rounded-full blur-[100px]" />
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:24px_24px] opacity-10" />
       </div>
-      <div className="grid grid-cols-2">
+      <div className="grid grid-cols-2 w-full">
         {/* Left Panel - Branding & Content */}
         <div className="flex-1 flex items-center justify-center p-8 lg:p-16 relative z-10">
           <div className="max-w-lg space-y-8">

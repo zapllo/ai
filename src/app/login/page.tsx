@@ -127,13 +127,13 @@ const TestimonialCard = ({ quote, author, role, delay = 0 }: {
     animate={{ opacity: 1, y: 0 }}
     transition={{ delay, duration: 0.5 }}
   >
-    <div className="flex items-start gap-3 mb-3">
+    {/* <div className="flex items-start gap-3 mb-3">
       <div className="flex text-primary">
         {[...Array(5)].map((_, i) => (
           <CheckCircle key={i} className="h-4 w-4 fill-current" />
         ))}
       </div>
-    </div>
+    </div> */}
     <blockquote className="text-sm text-muted-foreground mb-3 leading-relaxed">
       "{quote}"
     </blockquote>
@@ -315,7 +315,7 @@ export default function LoginPage() {
         </div>
 
         {/* Right Panel - Login Form */}
-        <div className="w-full flex items-center justify-center  -mt-[80%] p-8 lg:p-12 bg-card/30 backdrop-blur-xl border-l border-border/30 relative z-10">
+        <div className="w-full flex items-center justify-center 2xl:-mt-[60%] md:-mt-[80%] p-8 lg:p-12 bg-card/30 backdrop-blur-xl border-l border-border/30 relative z-10">
           <motion.div
             className="w-full max-w-lg space-y-8"
             initial={{ opacity: 0, x: 20 }}
