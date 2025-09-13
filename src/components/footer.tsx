@@ -121,31 +121,31 @@ export function Footer() {
   const footerLinks = {
     product: [
       { name: "Features", href: "/#features" },
-      { name: "Pricing", href: "/pricing" },
-      { name: "API Docs", href: "/docs" },
+      // { name: "Pricing", href: "/pricing" },
+      // { name: "API Docs", href: "/docs" },
       { name: "Integrations", href: "/#integrations" },
       { name: "Use Cases", href: "/use-cases" }
     ],
     company: [
-      { name: "About Us", href: "/about" },
-      { name: "Blog", href: "/blog" },
-      { name: "Careers", href: "/careers" },
-      { name: "Press Kit", href: "/press" },
-      { name: "Contact", href: "/contact" }
+      { name: "About Us", href: "https://zapllo.com/contact" },
+      { name: "Blog", href: "https://www.zapllo.com/blog" },
+      { name: "Careers", href: "https://zapllo.notion.site/Work-at-Zapllo-9c970622e3d142919bdca4c42ee38aab?pvs=4" },
+      { name: "Press Kit", href: "https://www.zapllo.com/pressRelease" },
+      // { name: "Contact", href: "/contact" }
     ],
     resources: [
-      { name: "Documentation", href: "/docs" },
-      { name: "Help Center", href: "/help" },
-      { name: "Community", href: "/community" },
+      // { name: "Documentation", href: "/docs" },
+      { name: "Help Center", href: "https://www.zapllo.com/contact" },
+      // { name: "Community", href: "/community" },
       { name: "Status Page", href: "/status" },
-      { name: "Changelog", href: "/changelog" }
+      // { name: "Changelog", href: "/changelog" }
     ],
     legal: [
       { name: "Privacy Policy", href: "https://zapllo.com/privacypolicy" },
       { name: "Terms of Service", href: "https://zapllo.com/terms" },
-      { name: "Security", href: "/security" },
-      { name: "Cookie Policy", href: "/cookies" },
-      { name: "GDPR", href: "/gdpr" }
+      // { name: "Security", href: "/security" },
+      // { name: "Cookie Policy", href: "/cookies" },
+      // { name: "GDPR", href: "/gdpr" }
     ]
   };
 
@@ -157,7 +157,7 @@ export function Footer() {
   ];
 
   return (
-    <footer className="relative overflow-hidden border-t border-border/60 bg-background/80 dark:bg-background/60 backdrop-blur-xl">
+    <footer className="relative overflow-hidden border-t  border-border/60 bg-background/80 dark:bg-background/60 backdrop-blur-xl">
       {/* Background effects */}
       <div className="absolute inset-0">
         <div className="absolute top-0 left-1/4 w-[300px] h-[300px] bg-blue-500/10 dark:bg-blue-500/20 rounded-full blur-[100px]" />
@@ -178,12 +178,12 @@ export function Footer() {
                 viewport={{ once: true }}
               >
                 <Link href="/" className="inline-flex items-center gap-3 group">
-                  <div className="relative">
+                  <div className="relative dark:bg-white rounded p-2">
                     <Image
                       src="/zapllo.png"
                       alt="Zapllo Voice"
-                      width={48}
-                      height={48}
+                      width={100}
+                      height={100}
                       className="h-12 w-auto transition-transform group-hover:scale-105"
                     />
                     <div className="absolute -top-1 -right-1">
@@ -194,9 +194,9 @@ export function Footer() {
                     </div>
                   </div>
                   <div>
-                    <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-violet-600 dark:from-blue-400 dark:to-violet-400">
+                    {/* <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-violet-600 dark:from-blue-400 dark:to-violet-400">
                       Zapllo Voice
-                    </span>
+                    </span> */}
                     <Badge className="ml-2 bg-gradient-to-r from-blue-500/20 to-violet-500/20 border border-blue-500/30 text-blue-700 dark:text-blue-300 text-xs">
                       <Crown className="h-3 w-3 mr-1" />
                       AI Powered

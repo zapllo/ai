@@ -203,9 +203,9 @@ export default function LoginPage() {
                   <Image
                     src="/zapllo.png"
                     alt="Zapllo AI"
-                    width={48}
-                    height={48}
-                    className="h-12 w-auto"
+                    width={100}
+                    height={100}
+                    className="h-16 w-auto"
                   />
                   <div className="absolute -top-1 -right-1">
                     <div className="relative flex h-3 w-3">
@@ -214,9 +214,9 @@ export default function LoginPage() {
                     </div>
                   </div>
                 </div>
-                <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-violet-600 dark:from-blue-400 dark:to-violet-400">
+                {/* <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-violet-600 dark:from-blue-400 dark:to-violet-400">
                   Zapllo Voice
-                </span>
+                </span> */}
               </Link>
             </motion.div>
 

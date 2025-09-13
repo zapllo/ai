@@ -1,7 +1,6 @@
 "use client"
 
 import { createContext, useContext, useEffect, useState } from "react"
-import { usePathname } from "next/navigation"
 
 type Theme = "dark" | "light" | "system"
 
@@ -21,7 +20,7 @@ type ThemeProviderState = {
 }
 
 const initialState: ThemeProviderState = {
-  theme: "system",
+  theme: "light",
   setTheme: () => null,
 }
 
@@ -29,19 +28,20 @@ const ThemeProviderContext = createContext<ThemeProviderState>(initialState)
 
 export function ThemeProvider({
   children,
-  defaultTheme = "system",
+  defaultTheme = "light",
   storageKey = "ui-theme",
-  attribute = "data-theme",
-  enableSystem = true,
+  attribute = "class",
+  enableSystem = false,
   disableTransitionOnChange = false,
   themes = ["light", "dark"],
   ...props
 }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>(defaultTheme)
-  const pathname = usePathname()
+  const [mounted, setMounted] = useState(false)
 
-  // Check if current page is login or register
-  const isAuthPage = pathname === "/login" || pathname === "/register" || pathname === "/forgot-password" || pathname === "/reset-password"
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     const root = window.document.documentElement
@@ -54,13 +54,6 @@ export function ThemeProvider({
       }, 0)
     }
 
-    // Always use dark theme for auth pages
-    if (isAuthPage) {
-      root.classList.add("dark")
-      root.setAttribute(attribute, "dark")
-      return
-    }
-
     if (theme === "system" && enableSystem) {
       const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
         .matches
@@ -68,43 +61,46 @@ export function ThemeProvider({
         : "light"
 
       root.classList.add(systemTheme)
-      root.setAttribute(attribute, systemTheme)
       return
     }
 
     root.classList.add(theme)
-    root.setAttribute(attribute, theme)
-  }, [theme, attribute, enableSystem, disableTransitionOnChange, pathname, isAuthPage, themes])
+  }, [theme, enableSystem, disableTransitionOnChange, themes])
 
   useEffect(() => {
-    // Skip loading saved theme for auth pages
-    if (isAuthPage) return
+    if (!mounted) return
 
     const savedTheme = localStorage.getItem(storageKey) as Theme | null
-
-    if (savedTheme) {
+    if (savedTheme && themes.includes(savedTheme)) {
       setTheme(savedTheme)
-    } else if (enableSystem) {
-      setTheme("system")
     }
-  }, [storageKey, enableSystem, isAuthPage])
+  }, [storageKey, themes, mounted])
 
   useEffect(() => {
-    // Don't persist theme changes for auth pages
-    if (isAuthPage) return
-
+    if (!mounted) return
     localStorage.setItem(storageKey, theme)
-  }, [theme, storageKey, isAuthPage])
+  }, [theme, storageKey, mounted])
+
+  const value = {
+    theme,
+    setTheme: (theme: Theme) => {
+      setTheme(theme)
+    },
+  }
+
+  // Prevent hydration mismatch
+  if (!mounted) {
+    return (
+      <ThemeProviderContext.Provider value={initialState} {...props}>
+        <div className="light">
+          {children}
+        </div>
+      </ThemeProviderContext.Provider>
+    )
+  }
 
   return (
-    <ThemeProviderContext.Provider
-      value={{
-        // If on auth page, always report "dark" as the current theme
-        theme: isAuthPage ? "dark" : theme,
-        setTheme,
-      }}
-      {...props}
-    >
+    <ThemeProviderContext.Provider value={value} {...props}>
       {children}
     </ThemeProviderContext.Provider>
   )

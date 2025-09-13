@@ -22,7 +22,8 @@ import {
   Sparkles,
   Shield,
   Zap,
-  Crown
+  Crown,
+  Phone
 } from "lucide-react";
 
 import {
@@ -50,7 +51,7 @@ export default function Home() {
     { href: "#products", label: "Solutions", icon: <Bot className="h-4 w-4" /> },
     { href: "#dashboard", label: "Platform", icon: <BarChart className="h-4 w-4" /> },
     { href: "#integrations", label: "Integrations", icon: <Globe className="h-4 w-4" /> },
-    { href: "#enterprise", label: "Enterprise", icon: <Shield className="h-4 w-4" /> }
+    { href: "/demo", label: "Demo", icon: <Phone className="h-4 w-4" /> }
   ];
 
   return (
@@ -91,13 +92,13 @@ export default function Home() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <div className="relative p-2 rounded-xl bg-gradient-to-br from-blue-500/10 to-violet-500/10 border border-blue-500/20 backdrop-blur-sm">
+              <div className="relative p-2 rounded-xl dark:bg-white bg-gradient-to-br from-blue-500/10 to-violet-500/10 border border-blue-500/20 ">
                 <Image
                   src="/zapllo.png"
                   alt="Zapllo AI"
-                  width={40}
-                  height={40}
-                  className="h-10 w-auto relative z-10"
+                  width={100}
+                  height={100}
+                  className="h-12 w-auto relative z-10"
                 />
                 <div className="absolute -top-0.5 -right-0.5">
                   <div className="relative flex h-3 w-3">
@@ -110,7 +111,7 @@ export default function Home() {
               </div>
             </motion.div>
 
-            <motion.div
+            {/* <motion.div
               className="flex flex-col"
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
@@ -122,7 +123,7 @@ export default function Home() {
               <span className="text-xs text-muted-foreground font-medium tracking-wide">
                 Enterprise AI
               </span>
-            </motion.div>
+            </motion.div> */}
           </Link>
 
           <motion.nav
@@ -214,8 +215,8 @@ export default function Home() {
                           <Image
                             src="/zapllo.png"
                             alt="Zapllo AI"
-                            width={32}
-                            height={32}
+                            width={100}
+                            height={100}
                             className="h-8 w-auto"
                           />
                           <div className="absolute -top-0.5 -right-0.5">

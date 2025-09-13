@@ -28,19 +28,19 @@ const dashboardPreviews = [
   {
     id: "analytics",
     name: "Analytics Dashboard",
-    image: "/ss/1.png",
+    image: "/ss/dashboard.jpg",
     description: "Real-time performance insights"
   },
   {
     id: "calls",
     name: "Active Calls",
-    image: "/ss/2.png",
+    image: "/ss/contact.jpg",
     description: "Live call monitoring"
   },
   {
     id: "agents",
     name: "Agent Management",
-    image: "/ss/3.png",
+    image: "/ss/agent.jpg",
     description: "AI agent configuration"
   }
 ];

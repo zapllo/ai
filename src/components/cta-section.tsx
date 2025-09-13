@@ -129,7 +129,7 @@ export function CTASection() {
 
   return (
     <section
-      className="py- relative overflow-hidden"
+      className="pb-12 relative overflow-hidden"
       ref={containerRef}
     >
       {/* Clean background */}

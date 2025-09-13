@@ -118,17 +118,17 @@ export function DashboardSidebar() {
           "flex items-center h-16 px-4 border-b border-sidebar-border",
           collapsed ? "justify-center" : "justify-between"
         )}>
-          <Link href="/dashboard" className="flex items-center gap-3">
-            <div className={`relative w-10 h-10 rounded-lg ${collapsed ?
+          <Link href="/dashboard" className="flex items-center gap-3 ">
+            <div className={`relative w-full p-6 rounded-lg ${collapsed ?
               "ml-7" : ""
-              }  bg-sidebar-primary/10 p-4 ring-1 ring-sidebar-primary/20`}>
-              <Image src="/zapllo.png" alt="Zapllo AI" fill className="object-contain scale-75 h-1/2" />
+              }  bg- -primary/10 p-6  scale- w-full `}>
+              <Image src="/zapllo.png" width={80} height={80} alt="Zapllo AI"  className="w-full p" />
             </div>
-            {!collapsed && (
+            {/* {!collapsed && (
               <span className="font-semibold text-lg  text-sidebar-foreground">
                 Zapllo Voice
               </span>
-            )}
+            )} */}
           </Link>
 
           <Button

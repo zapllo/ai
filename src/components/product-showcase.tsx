@@ -40,7 +40,7 @@ const products = [
       { label: "Conversion Rate", value: "73.4%", trend: "up", icon: <Target className="h-5 w-5" />, color: "#3b82f6" },
       { label: "Sales Velocity", value: "5.2x", trend: "up", icon: <Zap className="h-5 w-5" />, color: "#f59e0b" }
     ],
-    image: "/demo/sales.png",
+    image: "/ss/create.jpg",
     badge: { text: "Most Popular", color: "from-orange-500 to-red-500" },
     accent: "#3b82f6",
     testimonial: {
@@ -70,7 +70,7 @@ const products = [
       { label: "Response Time", value: "<2.1s", trend: "down", icon: <Clock className="h-5 w-5" />, color: "#f59e0b" },
       { label: "CSAT Score", value: "4.9/5", trend: "up", icon: <Star className="h-5 w-5" />, color: "#8b5cf6" }
     ],
-    image: "/demo/support.png",
+    image: "/ss/create.jpg",
     badge: { text: "Enterprise Grade", color: "from-purple-500 to-violet-600" },
     accent: "#8b5cf6",
     testimonial: {
@@ -100,7 +100,7 @@ const products = [
       { label: "No-Show Rate", value: "-82%", trend: "down", icon: <Shield className="h-5 w-5" />, color: "#f59e0b" },
       { label: "Booking Speed", value: "3.7x", trend: "up", icon: <Zap className="h-5 w-5" />, color: "#06b6d4" }
     ],
-    image: "/demo/appointment.png",
+    image: "/ss/create.jpg",
     badge: { text: "Productivity Boost", color: "from-emerald-500 to-teal-600" },
     accent: "#10b981",
     testimonial: {
@@ -130,7 +130,7 @@ const products = [
       { label: "Response Rate", value: "+420%", trend: "up", icon: <MessageSquare className="h-5 w-5" />, color: "#10b981" },
       { label: "Cost Per Lead", value: "-86%", trend: "down", icon: <BarChart2 className="h-5 w-5" />, color: "#f59e0b" }
     ],
-    image: "/demo/analytics.png",
+    image: "/ss/an.png",
     badge: { text: "Scale Master", color: "from-rose-500 to-pink-600" },
     accent: "#f43f5e",
     testimonial: {

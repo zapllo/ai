@@ -105,21 +105,21 @@ const transactions = [
 
 // Plan data
 const plans = [
-  {
-    id: "free",
-    name: "Free",
-    price: 0,
-    minutes: 0,
-    agents: 0,
-    extraMinuteRate: null,
-    features: [
-      "Limited access to features",
-      "No calling capabilities",
-      "Perfect for exploration",
-      "Basic support",
-    ],
-    popular: false,
-  },
+  // {
+  //   id: "free",
+  //   name: "Free",
+  //   price: 0,
+  //   minutes: 0,
+  //   agents: 0,
+  //   extraMinuteRate: null,
+  //   features: [
+  //     "Limited access to features",
+  //     "No calling capabilities",
+  //     "Perfect for exploration",
+  //     "Basic support",
+  //   ],
+  //   popular: false,
+  // },
   {
     id: "starter",
     name: "Starter",
@@ -723,7 +723,7 @@ export default function BillingPage() {
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
                         {plans.map((plan) => (
                           <div
                             key={plan.id}
