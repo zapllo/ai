@@ -162,14 +162,27 @@ export default function StatusPage() {
         <div className="container mx-auto px-4 h-18 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3 z-10">
             <div className="relative p-2 rounded-xl bg-gradient-to-br from-blue-500/10 to-violet-500/10 border border-blue-500/20 backdrop-blur-sm">
-              <Image src="/zapllo.png" alt="Zapllo AI" width={40} height={40} className="h-10 w-auto" />
+              <Image
+                src="/zapllo.png"
+                alt="Zapllo AI"
+                width={100}
+                height={100}
+                className="h-12 dark:hidden w-auto relative z-10"
+              />
+              <Image
+                src="/dark.png"
+                alt="Zapllo AI"
+                width={100}
+                height={100}
+                className="h-12 dark:block hidden w-auto relative z-10"
+              />
             </div>
-            <div className="flex flex-col">
+            {/* <div className="flex flex-col">
               <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-violet-600 to-purple-600 dark:from-blue-400 dark:via-violet-400 dark:to-purple-400">
                 Zapllo Voice
               </span>
               <span className="text-xs text-muted-foreground font-medium">Enterprise AI</span>
-            </div>
+            </div> */}
           </Link>
 
           <nav className="hidden lg:flex items-center gap-8">
