@@ -122,7 +122,20 @@ export function DashboardSidebar() {
             <div className={`relative w-full p-6 rounded-lg ${collapsed ?
               "ml-7" : ""
               }  bg- -primary/10 p-6  scale- w-full `}>
-              <Image src="/zapllo.png" width={80} height={80} alt="Zapllo AI"  className="w-full p" />
+              <Image
+                              src="/zapllo.png"
+                              alt="Zapllo AI"
+                              width={80}
+                              height={80}
+                              className="h-12 dark:hidden w-auto relative z-10"
+                            />
+                              <Image
+                              src="/dark.png"
+                              alt="Zapllo AI"
+                              width={80}
+                              height={80}
+                              className="h-12 dark:block hidden w-auto relative z-10"
+                            />
             </div>
             {/* {!collapsed && (
               <span className="font-semibold text-lg  text-sidebar-foreground">

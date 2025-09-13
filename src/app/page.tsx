@@ -92,13 +92,20 @@ export default function Home() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <div className="relative p-2 rounded-xl dark:bg-white bg-gradient-to-br from-blue-500/10 to-violet-500/10 border border-blue-500/20 ">
+              <div className="relative p-2 rounded-xl dark:bg bg-gradient-to-br from-blue-500/10 to-violet-500/10 border border-blue-500/20 ">
                 <Image
                   src="/zapllo.png"
                   alt="Zapllo AI"
                   width={100}
                   height={100}
-                  className="h-12 w-auto relative z-10"
+                  className="h-12 dark:hidden w-auto relative z-10"
+                />
+                  <Image
+                  src="/dark.png"
+                  alt="Zapllo AI"
+                  width={100}
+                  height={100}
+                  className="h-12 dark:block hidden w-auto relative z-10"
                 />
                 <div className="absolute -top-0.5 -right-0.5">
                   <div className="relative flex h-3 w-3">

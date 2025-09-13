@@ -180,13 +180,20 @@ export default function RegisterPage() {
             >
               <Link href="/" className="inline-flex items-center gap-3 mb-8">
                 <div className="relative">
-                  <Image
-                    src="/zapllo.png"
-                    alt="Zapllo AI"
-                    width={100}
-                    height={100}
-                    className="h-16 w-auto"
-                  />
+                   <Image
+                                   src="/zapllo.png"
+                                   alt="Zapllo AI"
+                                   width={100}
+                                   height={100}
+                                   className="h-16 dark:hidden w-auto relative z-10"
+                                 />
+                                   <Image
+                                   src="/dark.png"
+                                   alt="Zapllo AI"
+                                   width={100}
+                                   height={100}
+                                   className="h-16 dark:block hidden w-auto relative z-10"
+                                 />
                   <div className="absolute -top-1 -right-1">
                     <div className="relative flex h-3 w-3">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75"></span>

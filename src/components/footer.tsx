@@ -178,14 +178,21 @@ export function Footer() {
                 viewport={{ once: true }}
               >
                 <Link href="/" className="inline-flex items-center gap-3 group">
-                  <div className="relative dark:bg-white rounded p-2">
+                  <div className="relative dar-white rounded p-2">
                     <Image
-                      src="/zapllo.png"
-                      alt="Zapllo Voice"
-                      width={100}
-                      height={100}
-                      className="h-12 w-auto transition-transform group-hover:scale-105"
-                    />
+                                    src="/zapllo.png"
+                                    alt="Zapllo AI"
+                                    width={100}
+                                    height={100}
+                                    className="h-16 dark:hidden w-auto relative z-10"
+                                  />
+                                    <Image
+                                    src="/dark.png"
+                                    alt="Zapllo AI"
+                                    width={100}
+                                    height={100}
+                                    className="h-12 dark:block hidden w-auto relative z-10"
+                                  />
                     <div className="absolute -top-1 -right-1">
                       <div className="relative flex h-3 w-3">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75"></span>
